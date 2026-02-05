@@ -66,33 +66,18 @@ import Layout from '../layout/Layout.astro';
         ring: document.getElementById('progress-ring') as unknown as SVGCircleElement
     };
 
-    /**
-     * Extracts ULID and Prefix from the path
-     * Example: /r/01JG... -> { id: '01JG...', prefix: 'r' }
-     * Example: /01JG...   -> { id: '01JG...', prefix: null }
-     */
     function getUlidAndPrefix() {
         const path = window.location.pathname.replace(/\/$/, '');
         const segs = path.split('/').filter(Boolean);
-        
         if (segs.length === 0) return { id: null, prefix: null };
-
         if (segs.length >= 2 && segs[segs.length - 1].length === 10) {
             return { id: segs[segs.length - 1], prefix: segs[segs.length - 2] };
         }
-        
         const last = segs[segs.length - 1];
-        if (last.length === 10) {
-            return { id: last, prefix: null };
-        }
-        
+        if (last.length === 10) return { id: last, prefix: null };
         return { id: null, prefix: null };
     }
 
-    /**
-     * Reads u (user) and r (repo) from the URL hash
-     * Example: #u=rafifmsn&r=rmsn-link
-     */
     function getParamsFromHash() {
         const hash = window.location.hash.substring(1);
         const params = new URLSearchParams(hash);
@@ -101,9 +86,6 @@ import Layout from '../layout/Layout.astro';
         return (u && r) ? { user: u, repo: r } : null;
     }
 
-    /**
-     * Decodes ULID timestamp to build GitHub directory path
-     */
     function getPath(id: string, user: string, repo: string) {
         let time = 0;
         for (let i = 0; i < 10; i++) {
@@ -112,42 +94,9 @@ import Layout from '../layout/Layout.astro';
             time = time * 32 + val;
         }
         const d = new Date(time);
-        const y = d.getUTCFullYear();
-        const m = String(d.getUTCMonth() + 1).padStart(2, '0');
-        return `https://raw.githubusercontent.com/${user}/${repo}/main/data/${y}/${m}/${id}.json`;
+        return `https://raw.githubusercontent.com/${user}/${repo}/main/data/${d.getUTCFullYear()}/${String(d.getUTCMonth() + 1).padStart(2, '0')}/${id}.json`;
     }
 
-    /**
-     * Starts the UI countdown and handles the final redirect
-     */
-    function startCounter(targetUrl: string, seconds: number) {
-        let count = seconds;
-        ui.count.textContent = count.toString();
-        ui.btn.onclick = () => window.location.replace(targetUrl);
-
-        // Reset progress ring
-        if (ui.ring) ui.ring.style.strokeDashoffset = "0";
-
-        const interval = setInterval(() => {
-            count--;
-            if (ui.count) ui.count.textContent = count.toString();
-            
-            const progress = (seconds - count) / seconds;
-            if (ui.ring) {
-                // Circumference is ~226 for r=36
-                ui.ring.style.strokeDashoffset = String(226 * (1 - progress));
-            }
-            
-            if (count <= 0) {
-                clearInterval(interval);
-                window.location.replace(targetUrl);
-            }
-        }, 1000);
-    }
-
-    /**
-     * Switches between Loading, Error, and Redirect UI views
-     */
     function showState(state: 'loading' | 'error' | 'redirect') {
         ui.loading.classList.toggle('hidden', state !== 'loading');
         ui.error.classList.toggle('hidden', state !== 'error');
@@ -158,81 +107,73 @@ import Layout from '../layout/Layout.astro';
         }
     }
 
-    /**
-     * Fallback logic when a link cannot be resolved
-     */
+    function startCounter(targetUrl: string, seconds: number) {
+        let count = seconds;
+        ui.count.textContent = count.toString();
+        ui.btn.onclick = () => window.location.replace(targetUrl);
+        if (ui.ring) ui.ring.style.strokeDashoffset = "0";
+        const interval = setInterval(() => {
+            count--;
+            if (ui.count) ui.count.textContent = count.toString();
+            const progress = (seconds - count) / seconds;
+            if (ui.ring) ui.ring.style.strokeDashoffset = String(226 * (1 - progress));
+            if (count <= 0) { clearInterval(interval); window.location.replace(targetUrl); }
+        }, 1000);
+    }
+
     function fallbackToHome(msg: string) {
         showState('redirect');
         ui.label.textContent = msg;
         ui.preview.textContent = window.location.origin;
         ui.subtext.textContent = "Redirecting you to home page...";
         ui.btnText.textContent = "Go Home Now";
-        startCounter(window.location.origin, 5);
+        startCounter(window.location.origin, 5); // Corrected from 500 to 5
     }
 
-    /**
-     * Main fetching logic
-     */
     async function fetchTarget(id: string, user: string, repo: string) {
         try {
             const jsonPath = getPath(id, user, repo);
             if (!jsonPath) throw new Error();
-
-            // Cache bust to ensure we don't get 404 from GitHub raw CDN on brand new links
             const resPath = await fetch(jsonPath + `?t=${Date.now()}`);
             if (!resPath.ok) throw new Error();
             const pathData = await resPath.json();
-            
             showState('redirect');
             ui.preview.textContent = pathData.target;
-            
-            // Standard 3 second redirect for found links
             startCounter(pathData.target, 3);
         } catch {
-            fallbackToHome("Link Not Found");
+            fallbackToHome("Link Not Found on GitHub");
         }
     }
 
     /**
-     * Orchestrator
+     * ORCHESTRATOR - Corrected Priority Logic
      */
     async function init() {
         const { id, prefix } = getUlidAndPrefix();
+        if (!id) return fallbackToHome("Invalid Link Format");
 
-        // IF NO ID FOUND: Don't just show 'error', use the fallback counter!
-        if (!id) {
-            return fallbackToHome("Invalid Link Format");
+        // PRIORITY 1: HASH PARAMS (Must come first to support Custom unregistered repos)
+        const hashParams = getParamsFromHash();
+        if (hashParams) {
+            console.log("Using Hash Params:", id, hashParams.user, hashParams.repo);
+            return fetchTarget(id, hashParams.user, hashParams.repo);
         }
 
+        // PRIORITY 2: DOMAINS.JSON (Prefix or Default)
         try {
             const resDomain = await fetch('/domains.json');
             const configs: Config[] = await resDomain.json();
             
-            // Find config: Match prefix, or find the one where prefix === "" (Default)
             const config = prefix 
                 ? configs.find(c => c.prefix === prefix) 
                 : configs.find(c => c.prefix === "" || c.default);
 
-            if (!config) {
-                return fallbackToHome("Slug/Prefix Not Found");
-            }
+            if (!config) return fallbackToHome("Slug/Prefix Not Found");
 
-            const jsonPath = getPath(id, config.user, config.repo);
-            const resPath = await fetch(jsonPath + `?t=${Date.now()}`);
-
-            if (!resPath.ok) {
-                // This is where a missing file on GitHub lands
-                return fallbackToHome("Link Not Found on GitHub");
-            }
-            
-            const pathData = await resPath.json();
-            
-            showState('redirect');
-            ui.preview.textContent = pathData.target;
-            startCounter(pathData.target, 3);
+            console.log("Using Registered Config:", id, config.user, config.repo);
+            return fetchTarget(id, config.user, config.repo);
 
         } catch (e) {
-            // Any network/parsing errors land here
             fallbackToHome("System Resolution Error");
         }
     }
