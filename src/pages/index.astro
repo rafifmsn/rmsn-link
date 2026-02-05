@@ -1,0 +1,264 @@
+---
+import Layout from '../layout/Layout.astro';
+---
+
+<Layout title="Link Shortener">
+  <main class="max-w-xl mx-auto p-6 flex flex-col min-h-screen justify-center w-full relative">
+
+    <div class="mb-10 text-center">
+
+        <h1 class="text-4xl font-bold text-white mb-2 tracking-tight">s.rafifmsn</h1>
+        <p class="text-neutral-500 font-mono text-sm uppercase tracking-widest">Link Shortener</p>
+
+    </div>
+    
+    <div class="space-y-5 bg-surface p-6 sm:p-8 rounded-3xl border border-border shadow-2xl">
+        
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <label class="text-xs font-bold text-neutral-600 uppercase tracking-wider">Target & Preset</label>
+            
+            <div class="relative min-w-35 sm:min-w-40">
+                <select id="prefix-select" class="w-full bg-background border border-border text-white rounded-xl pl-4 pr-10 py-4 text-sm font-mono focus:border-white focus:outline-none focus:ring-2 focus:ring-white/50 transition-all appearance-none cursor-pointer hover:bg-white/5"></select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-neutral-400">
+                    <i class="iconoir-nav-arrow-down text-neutral-600 pointer-events-none text-2xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <div class="relative group">
+                <input type="text" id="long-url" placeholder="https://..." class="w-full bg-background border border-border text-white rounded-xl pl-12 pr-4 py-5 focus:border-white transition-all placeholder:text-neutral-700 font-mono text-sm" />
+                <i class="iconoir-link absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500 group-focus-within:text-white transition-colors"></i>
+            </div>
+        </div>
+
+        <div class="pt-2 grid grid-cols-2 gap-4">
+            <div>
+                <label class="block text-[10px] font-bold text-neutral-600 mb-1 uppercase tracking-wider">GitHub User</label>
+                <input type="text" id="gh-user" class="w-full bg-background border border-border font-mono text-neutral-300 text-xs placeholder:text-neutral-700 rounded-lg px-3 py-2 focus:border-white transition-all" />
+            </div>
+            <div>
+                <label class="block text-[10px] font-bold text-neutral-600 mb-1 uppercase tracking-wider">Repo Name</label>
+                <input type="text" id="gh-repo" class="w-full bg-background border border-border font-mono text-neutral-300 text-xs placeholder:text-neutral-700 rounded-lg px-3 py-2 focus:border-white transition-all" />
+            </div>
+        </div>
+
+        <div>
+            <label class="block text-xs font-bold text-neutral-600 mb-2 uppercase tracking-wider">GitHub Token</label>
+            <div class="relative group">
+                <input type="password" id="gh-token" placeholder="ghp_..." class="w-full bg-background border border-border text-white rounded-xl pl-12 pr-4 py-4 focus:border-white transition-all placeholder:text-neutral-700" />
+                <i class="iconoir-github absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500 group-focus-within:text-white transition-colors"></i>
+            </div>
+        </div>
+
+        <button id="shorten-btn" class="w-full bg-white text-black font-black py-4 rounded-xl hover:bg-neutral-200 active:scale-[0.98] transition-all flex items-center justify-center gap-3 mt-4">
+            <span class="uppercase">Generate Link</span>
+            <i class="iconoir-flash"></i>
+        </button>
+
+        <div id="result-area" class="hidden pt-6 border-t border-border/50 animate-in fade-in slide-in-from-top-4">
+            <p class="text-[10px] text-neutral-500 mb-2 uppercase font-black tracking-[0.2em]">Ready to share</p>
+            <div class="flex gap-2">
+                <input type="text" id="short-result" readonly class="flex-1 bg-background border border-border text-white rounded-xl px-4 py-3 font-mono text-xs focus:ring-0 select-all" />
+                <button id="copy-btn" class="bg-surface border border-border hover:bg-white hover:text-black text-white px-5 rounded-xl transition-all active:scale-90">
+                    <i class="iconoir-copy"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="fixed top-6 left-1/2 -translate-x-1/2 z-50 transform transition-all duration-300 -translate-y-20 opacity-0 pointer-events-none">
+        <div class="bg-surface border border-border text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-4 min-w-75">
+            <div id="toast-icon" class="text-red-500">
+                <i class="iconoir-warning-circle"></i>
+            </div>
+            <div class="flex-1 space-y-1.5 ml-1.5">
+                <h4 id="toast-title" class="font-bold text-sm">Error</h4>
+                <p id="toast-message" class="text-xs text-neutral-400">Something went wrong</p>
+            </div>
+            <button id="toast-close" class="text-neutral-500 hover:text-white transition-colors">
+                <i class="iconoir-xmark"></i>
+            </button>
+        </div>
+    </div>
+
+  </main>
+</Layout>
+
+<script>
+    interface Config {
+        prefix: string;
+        name: string;
+        user: string;
+        repo: string;
+        default?: boolean;
+    }
+
+    const ui = {
+        prefixSelect: document.getElementById('prefix-select') as HTMLSelectElement,
+        targetUrl: document.getElementById('long-url') as HTMLInputElement,
+        ghUser: document.getElementById('gh-user') as HTMLInputElement,
+        ghRepo: document.getElementById('gh-repo') as HTMLInputElement,
+        token: document.getElementById('gh-token') as HTMLInputElement,
+        btn: document.getElementById('shorten-btn') as HTMLButtonElement,
+        result: document.getElementById('result-area') as HTMLDivElement,
+        resultInput: document.getElementById('short-result') as HTMLInputElement,
+        copyBtn: document.getElementById('copy-btn') as HTMLButtonElement,
+        get toastEl() { return document.getElementById('toast') as HTMLDivElement },
+        get toastTitle() { return document.getElementById('toast-title') as HTMLElement },
+        get toastMsg() { return document.getElementById('toast-message') as HTMLElement },
+        get toastIcon() { return document.getElementById('toast-icon') as HTMLElement },
+        get toastClose() { return document.getElementById('toast-close') as HTMLButtonElement },
+    };
+
+    let configList: Config[] = [];
+
+    function showToast(title: string, msg: string, type: 'error' | 'success' = 'error') {
+        const { toastEl, toastTitle, toastMsg, toastIcon } = ui;
+        if (!toastEl || !toastTitle || !toastMsg || !toastIcon) {
+            alert(`${title}: ${msg}`);
+            return;
+        }
+        toastTitle.innerText = title;
+        toastMsg.innerText = msg;
+        toastIcon.innerHTML = type === 'error' ? '<i class="iconoir-warning-circle"></i>' : '<i class="iconoir-check-circle"></i>';
+        toastIcon.className = type === 'error' ? 'text-red-500' : 'text-green-500';
+        toastEl.classList.remove('-translate-y-20', 'opacity-0', 'pointer-events-none');
+        toastEl.classList.add('translate-y-0', 'opacity-100');
+        setTimeout(() => hideToast(), 4000);
+    }
+
+    function hideToast() {
+        const el = ui.toastEl;
+        if (el) {
+            el.classList.add('-translate-y-20', 'opacity-0', 'pointer-events-none');
+            el.classList.remove('translate-y-0', 'opacity-100');
+        }
+    }
+    
+    function normalizeUrl(url: string) {
+        let clean = url.trim();
+        if (!clean.match(/^https?:\/\//)) clean = 'https://' + clean;
+        return clean;
+    }
+
+    async function init() {
+        try {
+            const res = await fetch('/domains.json');
+            configList = await res.json();
+            
+            const customOpt = `<option value="custom_unregistered">Custom (Unregistered)</option>`;
+            const presetOpts = configList.map(c => 
+                `<option value="${c.prefix}">${c.name}</option>`
+            ).join('');
+            
+            ui.prefixSelect.innerHTML = customOpt + presetOpts;
+            const def = configList.find(c => c.default);
+            ui.prefixSelect.value = def ? (def.prefix || "") : "custom_unregistered";
+            handleSelectChange();
+        } catch {
+            showToast("Config Error", "Could not load domains.json");
+        }
+        const savedToken = localStorage.getItem('gh_token');
+        if (savedToken) ui.token.value = savedToken;
+    }
+
+    function handleSelectChange() {
+        const val = ui.prefixSelect.value;
+        if (val === 'custom_unregistered') {
+            ui.ghUser.readOnly = false; ui.ghUser.value = "";
+            ui.ghRepo.readOnly = false; ui.ghRepo.value = "";
+            ui.ghUser.placeholder = "username";
+            ui.ghRepo.placeholder = "repo-name";
+        } else {
+            const conf = configList.find(c => (c.prefix || "") === val);
+            if (conf) {
+                ui.ghUser.value = conf.user; ui.ghUser.readOnly = true;
+                ui.ghRepo.value = conf.repo; ui.ghRepo.readOnly = true;
+            }
+        }
+    }
+
+    ui.prefixSelect.addEventListener('change', handleSelectChange);
+
+    ui.btn?.addEventListener('click', async () => {
+        const rawTarget = ui.targetUrl.value;
+        const token = ui.token.value;
+        const user = ui.ghUser.value.trim();
+        const repo = ui.ghRepo.value.trim();
+
+        if (!rawTarget || !token || !user || !repo) return showToast("Missing Fields", "All fields required.");
+
+        const finalTarget = normalizeUrl(rawTarget);
+        localStorage.setItem('gh_token', token);
+        
+        ui.btn.disabled = true;
+        const oldText = ui.btn.innerHTML;
+        ui.btn.innerHTML = `<i class="iconoir-system-restart animate-spin"></i> GENERATING...`;
+
+        try {
+            const ENCODING = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
+            let t = Date.now();
+            let id = "";
+            for(let i=0; i<10; i++) { id = ENCODING[t%32] + id; t = Math.floor(t/32); }
+
+            const now = new Date();
+            const y = now.getUTCFullYear();
+            const m = String(now.getUTCMonth()+1).padStart(2, '0');
+            const path = `data/${y}/${m}/${id}.json`;
+
+            const content = {
+                target: finalTarget,
+                repoUser: user,
+                repoName: repo,
+                created: new Date().toISOString()
+            };
+
+            const res = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/${path}`, {
+                method: 'PUT',
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message: `Link: ${id}`,
+                    content: btoa(JSON.stringify(content))
+                })
+            });
+
+            if(!res.ok) throw new Error("GitHub API Error - Check Token/Repo");
+
+            // --- SMART URL GENERATION LOGIC ---
+            const SERVICE_DOMAIN = "https://s.rafifmsn.com"; 
+            let finalShortLink = "";
+
+            // 1. Check if the provided User/Repo matches ANY registered config
+            const matchedConfig = configList.find(c => c.user === user && c.repo === repo);
+
+            if (matchedConfig) {
+                // If matched, use the Clean URL structure (even if "Custom" was selected in UI)
+                const prefixPath = matchedConfig.prefix ? `/${matchedConfig.prefix}/${id}` : `/${id}`;
+                finalShortLink = SERVICE_DOMAIN + prefixPath;
+            } else {
+                // 2. Fallback to Hash Params for truly unregistered repos
+                finalShortLink = `${SERVICE_DOMAIN}/${id}#u=${user}&r=${repo}`;
+            }
+
+            ui.result.classList.remove('hidden');
+            ui.resultInput.value = finalShortLink;
+            showToast("Success", "Link created!", "success");
+
+        } catch(e: any) {
+            showToast("Error", e.message);
+        } finally {
+            ui.btn.disabled = false;
+            ui.btn.innerHTML = oldText;
+        }
+    });
+
+    ui.copyBtn?.addEventListener('click', () => {
+        navigator.clipboard.writeText(ui.resultInput.value);
+        showToast("Copied", "Link copied", "success");
+    });
+
+    ui.toastClose?.addEventListener('click', hideToast);
+
+    init();
+</script>

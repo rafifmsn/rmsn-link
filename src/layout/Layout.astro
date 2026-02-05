@@ -1,0 +1,60 @@
+---
+import '../styles/global.css';
+
+interface Props {
+	title: string;
+}
+
+const { title = "Link Shortener — Rafif Muchsin" } = Astro.props;
+
+const pageDescription = "A serverless, static URL shortener built on GitHub and Cloudflare Edge."
+const siteUrl = Astro.site ? Astro.site.href : 'https://s.rafifmsn.com';
+const canonicalURL = new URL(Astro.url.pathname, siteUrl);
+
+---
+
+<!doctype html class="dark">
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width" />
+
+        <title>{title}</title>
+        <meta name="title" content={title} />
+        <meta name="description" content={pageDescription} />
+        <meta name="author" content="Rafif Muchsin" />
+        <link rel="canonical" href={canonicalURL} />
+
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={canonicalURL} />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={pageDescription} />
+        <meta property="og:image" content={new URL('/og.png', siteUrl)} />
+
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:url" content={canonicalURL} />
+        <meta name="twitter:title" content={title} />
+        <meta name="twitter:description" content={pageDescription} />
+        <meta name="twitter:image" content={new URL('/og.png', siteUrl)} />
+
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+        <meta name="theme-color" content="#000000" />
+		
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/iconoir-icons/iconoir@main/css/iconoir.css" />
+        
+        <script is:inline data-collect-dnt="true" async src="https://scripts.simpleanalyticscdn.com/latest.js"></script>
+	</head>
+	<body class="bg-background text-white font-sans antialiased min-h-screen flex flex-col">
+		<slot />
+	</body>
+</html>
+
+<style is:global>
+	/* Global Utility Overrides if needed */
+	input, select {
+		outline: none;
+	}
+</style>
