@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Figtree", ui-sans-serif, system-ui, sans-serif;
+  --font-primary: "Figtree", ui-sans-serif, system-ui, sans-serif;
   --color-background: #0A0A0A;
   --color-surface: #141414;
   --color-border: #222222;
@@ -38,7 +38,8 @@
   .doc-prose a { color: #fff; text-decoration: underline; text-decoration-color: rgba(255, 255, 255, 0.3); text-underline-offset: 4px; transition: text-decoration-color 0.2s; }
   .doc-prose a:hover { text-decoration-color: #fff; }
   .doc-prose blockquote { border-left: 2px solid rgba(255, 255, 255, 0.2); padding-left: 1rem; font-style: italic; color: #737373; margin: 1.5rem 0; font-size: 0.875rem; }
-  
+  /* End of styling for documentation */
+
   /* Hide scrollbar for cleaner UI */
   .hide-scrollbar::-webkit-scrollbar { display: none; }
   .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }

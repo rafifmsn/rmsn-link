@@ -64,7 +64,7 @@ import Layout from '../layout/Layout.astro';
             <p class="text-[10px] text-neutral-500 mb-2 uppercase font-semibold tracking-[0.2em]">Ready to share</p>
             <div class="flex gap-2">
                 <input type="text" id="short-result" readonly class="flex-1 bg-background border border-border text-white rounded-xl px-4 py-3 text-xs focus:ring-0 select-all" />
-                <button id="copy-btn" class="bg-surface border border-border hover:bg-white hover:text-black text-white px-5 rounded-xl transition-all active:scale-90">
+                <button id="copy-btn" class="flex justify-center items-center bg-surface border border-border hover:bg-white hover:text-black text-white px-5 rounded-xl transition-all active:scale-90">
                     <i class="iconoir-copy"></i>
                 </button>
             </div>
@@ -88,16 +88,19 @@ import Layout from '../layout/Layout.astro';
 
   </main>
 
+  <!-- DOCUMENTATION MODAL -->
+
   <div id="docs-modal" class="fixed inset-0 z-100 flex items-center justify-center bg-black/40 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300 p-4">
       <div id="docs-content" class="bg-surface border border-border rounded-3xl w-full max-w-2xl max-h-[85vh] overflow-y-auto shadow-2xl transform scale-95 transition-transform duration-300 relative hide-scrollbar">
           
           <button id="close-docs-btn" class="absolute top-6 right-6 text-neutral-500 hover:text-white transition-all z-10 group">
-              <i class="iconoir-xmark text-2xl group-hover:rotate-90 transition-transform duration-500 bg-black/30 p-2 rounded-full"></i>
+              <i class="iconoir-xmark text-2xl group-hover:rotate-90 transition-transform duration-500 bg-black/60 p-2 rounded-full"></i>
           </button>
 
           <div class="p-8 sm:p-10 doc-prose">
               <h2 class="mt-0!">Documentation</h2>
-              <p>This is a completely serverless link shortener that uses GitHub as a decentralized database. It offers 100% data ownership with zero database hosting costs. <br> <strong>Note:</strong> Anyone can deploy and use this tool by cloning the <a href="https://github.com/rafifmsn/rmsn-link-base" target="_blank">open-source repository</a>!</p>
+              <p>This is a completely serverless link shortener that uses GitHub as a decentralized database. It offers 100% data ownership with zero database hosting costs. Anyone can use this tool by only providing a Target URL, User, Repo, and Github Token.</p>
+              <p>It's also possible to use it by cloning the <a href="https://github.com/rafifmsn/rmsn-link" target="_blank">repository</a>.</p>
 
               <h3>1. How to Use It</h3>
               <ul>
@@ -108,18 +111,23 @@ import Layout from '../layout/Layout.astro';
 
               <h3>2. Autofill & Presets (domains.json)</h3>
               <p>The "Preset" dropdown reads from a file called <code>domains.json</code> located in the project's root. The <strong>Default (Root)</strong> option is auto-filled to save you time if you have a primary repository you use constantly.</p>
-              
-              <p><strong>Why add a new option?</strong> If you want to categorize your links (e.g., one repo for <code>/blog/</code> and another for <code>/dl/</code>), you can clone this project and edit <code>domains.json</code> to add custom prefixes. This automatically locks the User/Repo fields to prevent typos.</p>
-
-              <p>Please note that <code>"default": true</code> value below can be changed to <code>"default": false</code> if you don't want this option to be selected by default.</p>
+              <p><strong>Why add a new option?</strong> If you want to categorize your links (e.g., one repo for <code>/blog/</code> and another for <code>/dl/</code> by modifying its <code>"prefix"</code>), you can clone this project and edit <code>domains.json</code> to add custom prefixes. This automatically locks the User/Repo fields to prevent typos.</p>
+              <p>Please note that <code>"default": <strong>true</strong></code> value below can be changed to <code>false</code> if you don't want this option to be selected by default.</p>
               
               <pre><code>{`[
   {
     "prefix": "",
-    "name": "Default (Root)",
-    "user": "your-username",
-    "repo": "main-link-repo",
+    "name": "Default",
+    "user": "rafifmsn",
+    "repo": "rmsn-link-base",
     "default": true
+  },
+  {
+    "prefix": "tr",
+    "name": "Default",
+    "user": "rafifmsn",
+    "repo": "trash-bin",
+    "default": false
   }
 ]`}</code></pre>
 
@@ -140,6 +148,9 @@ import Layout from '../layout/Layout.astro';
           </div>
       </div>
   </div>
+
+  <!-- END OF DOCUMENTATION MODAL -->
+
 </Layout>
 
 <script>
