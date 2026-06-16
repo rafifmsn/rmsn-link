@@ -3,7 +3,7 @@ import Layout from '../layout/Layout.astro';
 ---
 
 <Layout title="Link Shortener">
-  <main class="max-w-xl mx-auto p-6 flex flex-col min-h-screen justify-center w-full relative z-10">
+  <main class="max-w-xl flex flex-col min-h-screen w-full relative z-10 mx-auto px-6 py-18 md:py-0 md:justify-center">
 
     <div class="mb-10 text-center">
         <h1 class="text-4xl font-bold text-white mb-2 tracking-tight">Rafif Muchsin</h1>
@@ -44,12 +44,15 @@ import Layout from '../layout/Layout.astro';
         <div>
             <label class="block text-xs font-bold text-neutral-600 mb-2 uppercase tracking-wider">GitHub Token</label>
             <div class="relative group">
-                <input type="password" id="gh-token" placeholder="ghp_..." class="w-full bg-background border border-border text-white rounded-xl pl-12 pr-4 py-4 focus:border-white transition-all placeholder:text-neutral-700" />
+                <input type="password" id="gh-token" placeholder="ghp_..." class="w-full bg-background border border-border text-white rounded-xl pl-12 pr-15 py-4 focus:border-white transition-all placeholder:text-neutral-700" />
                 <i class="iconoir-github absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500 group-focus-within:text-white transition-colors"></i>
+                <button id="clear-token-btn" class="absolute right-5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white transition-colors bg-neutral-700/30 hover:bg-neutral-700/60 rounded-xl w-8 h-8 p-1" title="Clear Saved Token">
+                    <i class="iconoir-trash"></i>
+                </button>
             </div>
         </div>
 
-        <button id="shorten-btn" class="w-full bg-white text-black font-semibold py-4 rounded-xl hover:bg-neutral-200 active:scale-[0.98] transition-all flex items-center justify-center gap-3 mt-4">
+        <button id="shorten-btn" class="w-full bg-white text-black text-sm font-semibold py-4 rounded-xl hover:bg-neutral-200 active:scale-[0.98] transition-all flex items-center justify-center gap-3 mt-4">
             <span class="uppercase">Generate Link</span>
             <i class="iconoir-flash"></i>
         </button>
@@ -64,7 +67,7 @@ import Layout from '../layout/Layout.astro';
             <p class="text-[10px] text-neutral-500 mb-2 uppercase font-semibold tracking-[0.2em]">Ready to share</p>
             <div class="flex gap-2">
                 <input type="text" id="short-result" readonly class="flex-1 bg-background border border-border text-white rounded-xl px-4 py-3 text-xs focus:ring-0 select-all" />
-                <button id="copy-btn" class="bg-surface border border-border hover:bg-white hover:text-black text-white px-5 rounded-xl transition-all active:scale-90">
+                <button id="copy-btn" class="flex justify-center items-center bg-surface border border-border hover:bg-white hover:text-black text-white px-5 rounded-xl transition-all active:scale-90">
                     <i class="iconoir-copy"></i>
                 </button>
             </div>
@@ -88,58 +91,72 @@ import Layout from '../layout/Layout.astro';
 
   </main>
 
-  <div id="docs-modal" class="fixed inset-0 z-100 flex items-center justify-center bg-black/40 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300 p-4">
-      <div id="docs-content" class="bg-surface border border-border rounded-3xl w-full max-w-2xl max-h-[85vh] overflow-y-auto shadow-2xl transform scale-95 transition-transform duration-300 relative hide-scrollbar">
-          
-          <button id="close-docs-btn" class="absolute top-6 right-6 text-neutral-500 hover:text-white transition-all z-10 group">
-              <i class="iconoir-xmark text-2xl group-hover:rotate-90 transition-transform duration-500 bg-black/30 p-2 rounded-full"></i>
-          </button>
+  <!-- DOCUMENTATION MODAL -->
 
-          <div class="p-8 sm:p-10 doc-prose">
-              <h2 class="mt-0!">Documentation</h2>
-              <p>This is a completely serverless link shortener that uses GitHub as a decentralized database. It offers 100% data ownership with zero database hosting costs. <br> <strong>Note:</strong> Anyone can deploy and use this tool by cloning the <a href="https://github.com/rafifmsn/rmsn-link-base" target="_blank">open-source repository</a>!</p>
+    <div id="docs-modal" class="fixed inset-0 z-100 flex items-center justify-center bg-black/40 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300 p-4">
+        <div id="docs-content" class="bg-surface border border-border rounded-3xl w-full max-w-2xl max-h-[85vh] overflow-y-auto shadow-2xl transform scale-95 transition-transform duration-300 relative hide-scrollbar">
+            
+            <button id="close-docs-btn" class="absolute top-6 right-6 text-neutral-500 hover:text-white transition-all z-10 group">
+                <i class="iconoir-xmark text-2xl group-hover:rotate-90 transition-transform duration-500 bg-black/60 p-2 rounded-full"></i>
+            </button>
 
-              <h3>1. How to Use It</h3>
-              <ul>
-                  <li><strong>Create a Database:</strong> Make a new, empty public GitHub repository (e.g., <code>my-links</code>).</li>
-                  <li><strong>Get a Token:</strong> Go to your GitHub Developer Settings and generate a <strong>Personal Access Token (classic)</strong> with the <code>repo</code> scope.</li>
-                  <li><strong>Generate:</strong> Select "Custom", input your Target URL, User, Repo, and Token. Click Generate!</li>
-              </ul>
+            <div class="p-8 sm:p-10 doc-prose">
+                <h2 class="mt-0!">Documentation</h2>
+                <p>This is a completely serverless link shortener that uses GitHub repo as the database. It offers 100% data ownership with zero database hosting costs. Anyone can use this tool by only providing a Target URL, User, Repo, and GitHub Token.</p>
+                <p>It's also possible to use it by cloning the <a href="https://github.com/rafifmsn/rmsn-link" target="_blank">repository</a>.</p>
 
-              <h3>2. Autofill & Presets (domains.json)</h3>
-              <p>The "Preset" dropdown reads from a file called <code>domains.json</code> located in the project's root. The <strong>Default (Root)</strong> option is auto-filled to save you time if you have a primary repository you use constantly.</p>
-              
-              <p><strong>Why add a new option?</strong> If you want to categorize your links (e.g., one repo for <code>/blog/</code> and another for <code>/dl/</code>), you can clone this project and edit <code>domains.json</code> to add custom prefixes. This automatically locks the User/Repo fields to prevent typos.</p>
+                <h3>1. How to Use It</h3>
+                <ul>
+                    <li><strong>Create a Database:</strong> Make a new, empty public GitHub repository (e.g., <code>my-links</code>).</li>
+                    <li><strong>Get a Token:</strong> Go to your GitHub Developer Settings and generate a <strong>Personal Access Token (classic)</strong> with the <code>repo</code> scope.</li>
+                    <li><strong>Generate:</strong> Select "Custom", input your Target URL, User, Repo, and Token. Click Generate!</li>
+                </ul>
 
-              <p>Please note that <code>"default": true</code> value below can be changed to <code>"default": false</code> if you don't want this option to be selected by default.</p>
-              
-              <pre><code>{`[
-  {
+                <h3>2. Token Privacy & Security</h3>
+                <p>Your GitHub Token is stored locally in your browser (securely in IndexedDB) to avoid repeated typing. To keep your credentials safe from casual inspection or malicious browser scrapers, we use a <strong>Symmetric XOR Obfuscation</strong> layer:</p>
+                <ul>
+                    <li><strong>Obfuscated Storage:</strong> Before being saved to the browser's <strong>IndexedDB</strong>, your token is processed via a bitwise XOR cipher and Base64 encoded. It never exists as plain text in your storage.</li>
+                    <li><strong>Zero Server Contact:</strong> The token is only used to communicate directly with <code>api.github.com</code>. It never touches any third-party analytics or backend servers.</li>
+                    <li><strong>Clearing:</strong> To remove a previously saved token, click the trash icon next to the Token field in the dashboard; this clears the stored token from your browser's IndexedDB.</li>
+                </ul>
+
+                <h3>3. Autofill & Presets (domains.json)</h3>
+                <p>The "Preset" dropdown reads from a file called <code>domains.json</code> located in the project's root. The <strong>Default (Root)</strong> option is auto-filled to save you time if you have a primary repository you use constantly.</p>
+                <p><strong>Why add a new option?</strong> If you want to categorize your links (e.g., one repo for <code>/blog/</code> and another for <code>/dl/</code> by modifying its <code>"prefix"</code>), you can clone this project and edit <code>domains.json</code> to add custom prefixes.</p>
+                
+                <pre><code>{`[
+    {
     "prefix": "",
-    "name": "Default (Root)",
-    "user": "your-username",
-    "repo": "main-link-repo",
+    "name": "Default",
+    "user": "rafifmsn",
+    "repo": "rmsn-link-base",
     "default": true
-  }
+    },
+    {
+    "prefix": "tr",
+    "name": "Trash",
+    "user": "rafifmsn",
+    "repo": "trash-bin",
+    "default": false
+    }
 ]`}</code></pre>
 
-              <h3>3. Link Formats (Clean vs. Portable)</h3>
-              <p>The system uses a <strong>Smart Match</strong> routing logic. The generated link adapts based on whether your repository is registered in <code>domains.json</code> or not:</p>
-              
-              <ul>
-                  <li><strong>Registered Repo (Clean URL):</strong><br> If your User/Repo matches a preset, you get a clean URL.<br>
-                  <code>s.domain.com/01JG...</code> (or <code>/prefix/01JG...</code>)</li>
-                  
-                  <li><strong>Unregistered Repo (Portable Hash):</strong><br> If you use the "Custom" option for a repo not in your config, the resolver uses URL hashes to locate it. This allows the system to remain stateless.<br>
-                  <code>s.domain.com/01JG...#u=user&r=repo</code></li>
-              </ul>
+                <h3>4. Link Formats (Clean vs. Portable)</h3>
+                <p>The system uses a <strong>Smart Match</strong> routing logic. The generated link adapts based on whether your repository is registered in <code>domains.json</code> or not:</p>
+                
+                <ul>
+                    <li><strong>Registered Repo (Clean URL):</strong><br> If your User/Repo matches a preset, you get a clean URL.<br>
+                    <code>s.domain.com/01JG...</code> (or <code>/prefix/01JG...</code>)</li>
+                    
+                    <li><strong>Unregistered Repo (Portable Hash):</strong><br> If you use the "Custom" option for a repo not in your config, the resolver uses URL hashes to locate it.<br>
+                    <code>s.domain.com/01JG...#u=user&r=repo</code></li>
+                </ul>
+            </div>
+        </div>
+    </div>
 
-              <blockquote>
-                Your GitHub Token is stored locally in your browser and is never sent to an external server other than GitHub's official API.
-              </blockquote>
-          </div>
-      </div>
-  </div>
+  <!-- END OF DOCUMENTATION MODAL -->
+
 </Layout>
 
 <script>
@@ -157,6 +174,7 @@ import Layout from '../layout/Layout.astro';
         ghUser: document.getElementById('gh-user') as HTMLInputElement,
         ghRepo: document.getElementById('gh-repo') as HTMLInputElement,
         token: document.getElementById('gh-token') as HTMLInputElement,
+        clearTokenBtn: document.getElementById('clear-token-btn') as HTMLButtonElement,
         btn: document.getElementById('shorten-btn') as HTMLButtonElement,
         result: document.getElementById('result-area') as HTMLDivElement,
         resultInput: document.getElementById('short-result') as HTMLInputElement,
@@ -175,6 +193,75 @@ import Layout from '../layout/Layout.astro';
     };
 
     let configList: Config[] = [];
+    const OBS_KEY = "x7f9a2b4c6d8e0f1_rmsn"; // Static key for XOR obfuscation
+
+    // --- ENCRYPTION LOGIC ---
+    function encryptToken(token: string): string {
+        let xor = "";
+        for (let i = 0; i < token.length; i++) {
+            xor += String.fromCharCode(token.charCodeAt(i) ^ OBS_KEY.charCodeAt(i % OBS_KEY.length));
+        }
+        return btoa(xor);
+    }
+
+    function decryptToken(encrypted: string): string {
+        try {
+            const decoded = atob(encrypted);
+            let xor = "";
+            for (let i = 0; i < decoded.length; i++) {
+                xor += String.fromCharCode(decoded.charCodeAt(i) ^ OBS_KEY.charCodeAt(i % OBS_KEY.length));
+            }
+            return xor;
+        } catch {
+            return ""; // Fallback if IndexedDB gets corrupted or contains raw token
+        }
+    }
+
+    // --- IndexedDB helpers (stores encrypted token) ---
+    function openDB(): Promise<IDBDatabase> {
+        return new Promise((resolve, reject) => {
+            const req = indexedDB.open('rmsn-link', 1);
+            req.onupgradeneeded = () => {
+                const db = req.result;
+                if (!db.objectStoreNames.contains('secrets')) db.createObjectStore('secrets');
+            };
+            req.onsuccess = () => resolve(req.result);
+            req.onerror = () => reject(req.error);
+        });
+    }
+
+    async function idbGet(key: string): Promise<string | null> {
+        const db = await openDB();
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction('secrets', 'readonly');
+            const store = tx.objectStore('secrets');
+            const req = store.get(key);
+            req.onsuccess = () => resolve(req.result ?? null);
+            req.onerror = () => reject(req.error);
+        });
+    }
+
+    async function idbSet(key: string, value: string): Promise<void> {
+        const db = await openDB();
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction('secrets', 'readwrite');
+            const store = tx.objectStore('secrets');
+            const req = store.put(value, key);
+            req.onsuccess = () => resolve();
+            req.onerror = () => reject(req.error);
+        });
+    }
+
+    async function idbDelete(key: string): Promise<void> {
+        const db = await openDB();
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction('secrets', 'readwrite');
+            const store = tx.objectStore('secrets');
+            const req = store.delete(key);
+            req.onsuccess = () => resolve();
+            req.onerror = () => reject(req.error);
+        });
+    }
 
     // --- MODAL LOGIC ---
     function openModal() {
@@ -257,8 +344,17 @@ import Layout from '../layout/Layout.astro';
         } catch {
             showToast("Config Error", "Could not load domains.json");
         }
-        const savedToken = localStorage.getItem('gh_token');
-        if (savedToken) ui.token.value = savedToken;
+        
+        try {
+            const savedToken = await idbGet('gh_token');
+            if (savedToken) {
+                // Attempt decryption, fallback to empty if decryption fails
+                const decrypted = decryptToken(savedToken);
+                ui.token.value = decrypted || '';
+            }
+        } catch (e) {
+            // ignore DB errors and leave token empty
+        }
     }
 
     function handleSelectChange() {
@@ -288,7 +384,9 @@ import Layout from '../layout/Layout.astro';
         if (!rawTarget || !token || !user || !repo) return showToast("Missing Fields", "All fields required.");
 
         const finalTarget = normalizeUrl(rawTarget);
-        localStorage.setItem('gh_token', token);
+        
+        // Encrypt token before saving to IndexedDB
+        try { await idbSet('gh_token', encryptToken(token)); } catch (e) { /* ignore */ }
         
         ui.btn.disabled = true;
         const oldText = ui.btn.innerHTML;
@@ -353,6 +451,16 @@ import Layout from '../layout/Layout.astro';
     });
 
     ui.toastClose?.addEventListener('click', hideToast);
+
+    ui.clearTokenBtn?.addEventListener('click', async () => {
+        try {
+            await idbDelete('gh_token');
+            ui.token.value = '';
+            showToast('Cleared', 'Saved token removed', 'success');
+        } catch (e) {
+            showToast('Error', 'Could not clear token');
+        }
+    });
 
     init();
 </script>

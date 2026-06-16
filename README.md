@@ -1,6 +1,6 @@
 # RMSN-Link
 
-A high-performance, serverless, and completely free link shortener built using **Astro 5**, **Tailwind CSS v4**, and **GitHub** as a decentralized database. This project is designed for users who want 100% control over their data with zero hosting costs.
+A high-performance, serverless, and completely free link shortener built using Astro 6, Tailwind CSS v4, and GitHub repo as the database. This project is designed for users who want 100% control over their data with zero hosting costs.
 
 ## How It Works
 
@@ -20,16 +20,37 @@ When someone clicks a link, the `404.astro` script executes this logic in order:
 
 ## Privacy & Security
 
-Security is handled entirely on the client side:
-* **No Backend:** Your GitHub Token never touches a third-party server.
-* **Direct Communication:** The browser communicates directly with `api.github.com`.
-* **Zero Trust:** It is highly recommended to protect your deployment with **Cloudflare Zero Trust** to ensure only you can access the creation interface.
+This project is built on a "Local-First" security model. Since there is no database or backend server, your credentials and data remain under your direct control.
+
+### GitHub Token Protection
+Your GitHub Personal Access Token (PAT) is the key to your "database." To protect it from casual exposure, we implement a **Symmetric XOR Obfuscation** layer:
+
+* **Static Key Obfuscation:** The script uses an internal `OBS_KEY` constant which serves as the "password" for both the encryption and decryption processes.
+* **XOR Operation:** This is a bitwise operation where each character of your token is shifted against a corresponding character in the key. It is computationally inexpensive and perfectly reversible.
+* **Base64 Wrapper:** After the XOR shift, the resulting string is wrapped in `btoa()` (Base64). This ensures the scrambled data is stored as a stable ASCII string safe to persist in the browser (we store it encrypted in IndexedDB).
+* **Deterministic Flow:** This process is strictly deterministic—the same token always produces the same encrypted string, allowing for seamless retrieval without a backend.
+
+**Logic Flow:**
+* **Storage:** `Token` + `Static Key` → `XOR Bitshift` → `Base64 Encode` → `IndexedDB` (encrypted).
+* **Retrieval:** `IndexedDB` → `Base64 Decode` → `XOR Bitshift` (with same Key) → `Original Token`.
+
+* **Clearing Saved Token:** To remove a previously saved token from the browser, use the trash icon next to the Token field in the dashboard — this clears the stored token from IndexedDB.
+
+### Why This Matters for Static Apps
+In a pure frontend environment (Astro/Static HTML), true "unbreakable" encryption is impossible because the "lock" and the "key" are both delivered to the user's browser. However, this method provides a solid defense against:
+* **Malicious Extensions:** Many browser extensions scan local storage for strings starting with `ghp_` (the standard GitHub prefix). By obfuscating it, that signature disappears.
+* **Shoulder Surfing:** If someone views your browser's DevTools, they see a scrambled Base64 string instead of your actual credential.
+* **Accidental Leaks:** If you share a screenshot of your local storage for debugging, your token remains hidden.
+
+### Infrastructure Security
+* **No Middleman:** Your token never touches a third-party server. The browser communicates directly with `api.github.com`.
+* **Zero Trust:** For maximum security, it is **highly recommended** to protect your deployment with **Cloudflare Zero Trust**. This ensures that even with obfuscation, the dashboard interface is only accessible by authorized users.
 
 ## Tech Stack
 
 | Component | Technology |
 | :--- | :--- |
-| **Framework** | Astro 5.0 (TypeScript) |
+| **Framework** | Astro 6.1.5 (TypeScript) |
 | **Styling** | Tailwind CSS v4 (Alpha/Vite Engine) |
 | **Icons** | Iconoir |
 | **Deployment** | Cloudflare Pages |

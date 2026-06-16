@@ -2,12 +2,12 @@
 <g clip-path="url(#clip0_323_26)">
 <rect width="250" height="250" rx="45" fill="black"/>
 <g filter="url(#filter0_fn_323_26)">
-<circle cx="-12.2511" cy="-14.2512" r="164.727" transform="rotate(-75 -12.2511 -14.2512)" fill="#343A40"/>
+<circle cx="-12.2511" cy="-14.2511" r="164.727" transform="rotate(-75 -12.2511 -14.2511)" fill="#343A40"/>
 </g>
 <g filter="url(#filter1_fn_323_26)">
 <circle cx="250.387" cy="250.387" r="89.3144" transform="rotate(-75 250.387 250.387)" fill="#495057"/>
 </g>
-<path d="M53.0315 181.509H73.4108V118.106H105.759V181.509H126.138V118.106H158.782V181.509H179.162V89.9633C179.162 86.7285 180.671 85.1111 183.69 85.1111H197.6V68.29H176.574C171.29 68.29 166.977 69.9614 163.634 73.304C160.4 76.5388 158.782 80.9058 158.782 86.405V101.285H73.4108V89.9633C73.4108 86.7285 74.9204 85.1111 77.9396 85.1111H90.2319V68.29H70.823C65.5394 68.29 61.2264 69.9614 57.8837 73.304C54.6489 76.5388 53.0315 80.9058 53.0315 86.405V181.509Z" fill="url(#paint0_linear_323_26)"/>
+<path d="M43.5742 192.83H68.0294V116.748H106.847V192.83H131.302V116.748H170.475V192.83H194.93V82.9761C194.93 79.0943 196.742 77.1534 200.365 77.1534H217.056V56.9681H191.825C185.485 56.9681 180.309 58.9737 176.298 62.9849C172.416 66.8667 170.475 72.1071 170.475 78.7061V96.5623H68.0294V82.9761C68.0294 79.0943 69.8409 77.1534 73.4639 77.1534H88.2147V56.9681H64.924C58.5838 56.9681 53.4081 58.9737 49.3969 62.9849C45.5151 66.8667 43.5742 72.1071 43.5742 78.7061V192.83Z" fill="url(#paint0_linear_323_26)"/>
 </g>
 <defs>
 <filter id="filter0_fn_323_26" x="-324.019" y="-326.019" width="623.536" height="623.536" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
@@ -27,7 +27,7 @@
 <feMergeNode in="color1" />
 </feMerge>
 </filter>
-<filter id="filter1_fn_323_26" x="51.8508" y="51.8505" width="397.073" height="397.073" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<filter id="filter1_fn_323_26" x="51.8508" y="51.8508" width="397.073" height="397.073" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
 <feFlood flood-opacity="0" result="BackgroundImageFix"/>
 <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
 <feGaussianBlur stdDeviation="54.6" result="effect1_foregroundBlur_323_26"/>
@@ -44,7 +44,7 @@
 <feMergeNode in="color1" />
 </feMerge>
 </filter>
-<linearGradient id="paint0_linear_323_26" x1="125" y1="65" x2="198" y2="182" gradientUnits="userSpaceOnUse">
+<linearGradient id="paint0_linear_323_26" x1="129.936" y1="53.0201" x2="217.536" y2="193.42" gradientUnits="userSpaceOnUse">
 <stop stop-color="white"/>
 <stop offset="1" stop-color="#6C757D"/>
 </linearGradient>
