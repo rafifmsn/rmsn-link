@@ -66,6 +66,25 @@ import Layout from '../layout/Layout.astro';
         ring: document.getElementById('progress-ring') as unknown as SVGCircleElement
     };
 
+    // --- SECURITY FILTERING UTILITIES ---
+    function sanitizeGitHubIdentifier(str: string): string {
+        return str.trim().replace(/[^a-zA-Z0-9-_]/g, '');
+    }
+
+    function safeValidateUrl(url: string | null | undefined): string | null {
+        if (!url) return null;
+        try {
+            const parsed = new URL(url.trim());
+            // Strict enforcement of secure hypermedia web components
+            if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+                return null;
+            }
+            return parsed.href;
+        } catch {
+            return null;
+        }
+    }
+
     function getUlidAndPrefix() {
         const path = window.location.pathname.replace(/\/$/, '');
         const segs = path.split('/').filter(Boolean);
@@ -83,7 +102,14 @@ import Layout from '../layout/Layout.astro';
         const params = new URLSearchParams(hash);
         const u = params.get('u');
         const r = params.get('r');
-        return (u && r) ? { user: u, repo: r } : null;
+        
+        if (u && r) {
+            return {
+                user: sanitizeGitHubIdentifier(u),
+                repo: sanitizeGitHubIdentifier(r)
+            };
+        }
+        return null;
     }
 
     function getPath(id: string, user: string, repo: string) {
@@ -95,9 +121,14 @@ import Layout from '../layout/Layout.astro';
         }
         const d = new Date(time);
         const filePath = `data/${d.getUTCFullYear()}/${String(d.getUTCMonth() + 1).padStart(2, '0')}/${id}.json`;
+        
+        // Use proper asset variable encoding
+        const u = encodeURIComponent(user);
+        const r = encodeURIComponent(repo);
+
         return {
-            primary: `https://cdn.jsdelivr.net/gh/${user}/${repo}@main/${filePath}`,
-            fallback: `https://raw.githubusercontent.com/${user}/${repo}/main/${filePath}`
+            primary: `https://cdn.jsdelivr.net/gh/${u}/${r}@main/${filePath}`,
+            fallback: `https://raw.githubusercontent.com/${u}/${r}/main/${filePath}`
         };
     }
 
@@ -112,16 +143,25 @@ import Layout from '../layout/Layout.astro';
     }
 
     function startCounter(targetUrl: string, seconds: number) {
+        const verifiedUrl = safeValidateUrl(targetUrl);
+        if (!verifiedUrl) {
+            return fallbackToHome("Insecure Target Protocol Blocked");
+        }
+
         let count = seconds;
         ui.count.textContent = count.toString();
-        ui.btn.onclick = () => window.location.replace(targetUrl);
+        ui.btn.onclick = () => window.location.replace(verifiedUrl);
         if (ui.ring) ui.ring.style.strokeDashoffset = "0";
+        
         const interval = setInterval(() => {
             count--;
             if (ui.count) ui.count.textContent = count.toString();
             const progress = (seconds - count) / seconds;
             if (ui.ring) ui.ring.style.strokeDashoffset = String(226 * (1 - progress));
-            if (count <= 0) { clearInterval(interval); window.location.replace(targetUrl); }
+            if (count <= 0) { 
+                clearInterval(interval); 
+                window.location.replace(verifiedUrl); 
+            }
         }, 1000);
     }
 
@@ -131,7 +171,7 @@ import Layout from '../layout/Layout.astro';
         ui.preview.textContent = window.location.origin;
         ui.subtext.textContent = "Redirecting you to home page...";
         ui.btnText.textContent = "Go Home Now";
-        startCounter(window.location.origin, 5); // Corrected from 500 to 5
+        startCounter(window.location.origin, 5); 
     }
 
     async function fetchTarget(id: string, user: string, repo: string) {
@@ -139,43 +179,44 @@ import Layout from '../layout/Layout.astro';
             const paths = getPath(id, user, repo);
             if (!paths) throw new Error();
             
+            let pathData: any = null;
+
             // Try jsDelivr CDN first
             try {
                 const resPrimary = await fetch(paths.primary + `?t=${Date.now()}`);
                 if (resPrimary.ok) {
-                    const pathData = await resPrimary.json();
-                    showState('redirect');
-                    ui.preview.textContent = pathData.target;
-                    startCounter(pathData.target, 3);
-                    return;
+                    pathData = await resPrimary.json();
                 }
-            } catch {
-                // jsDelivr failed, fall back to GitHub raw
-            }
+            } catch { /* Fallback to raw */ }
             
-            // Fall back to GitHub raw content
-            const resFallback = await fetch(paths.fallback + `?t=${Date.now()}`);
-            if (!resFallback.ok) throw new Error();
-            const pathData = await resFallback.json();
+            // Fall back to GitHub raw content if CDN fails
+            if (!pathData) {
+                const resFallback = await fetch(paths.fallback + `?t=${Date.now()}`);
+                if (!resFallback.ok) throw new Error();
+                pathData = await resFallback.json();
+            }
+
+            // Severe URL structure check from data execution object
+            const structuralTarget = safeValidateUrl(pathData?.target);
+            if (!structuralTarget) {
+                throw new Error("Malicious string configuration rejected.");
+            }
+
             showState('redirect');
-            ui.preview.textContent = pathData.target;
-            startCounter(pathData.target, 3);
+            ui.preview.textContent = structuralTarget;
+            startCounter(structuralTarget, 3);
         } catch {
             fallbackToHome("Link Not Found on GitHub");
         }
     }
 
-    /**
-     * ORCHESTRATOR - Corrected Priority Logic
-     */
     async function init() {
         const { id, prefix } = getUlidAndPrefix();
         if (!id) return fallbackToHome("Invalid Link Format");
 
-        // PRIORITY 1: HASH PARAMS (Must come first to support Custom unregistered repos)
+        // PRIORITY 1: HASH PARAMS (Custom unregistered repos)
         const hashParams = getParamsFromHash();
         if (hashParams) {
-            console.log("Using Hash Params:", id, hashParams.user, hashParams.repo);
             return fetchTarget(id, hashParams.user, hashParams.repo);
         }
 
@@ -184,15 +225,14 @@ import Layout from '../layout/Layout.astro';
             const resDomain = await fetch('/domains.json');
             const configs: Config[] = await resDomain.json();
             
-            const config = prefix 
-                ? configs.find(c => c.prefix === prefix) 
+            const sanitizedPrefix = prefix ? sanitizeGitHubIdentifier(prefix) : null;
+            const config = sanitizedPrefix 
+                ? configs.find(c => sanitizeGitHubIdentifier(c.prefix) === sanitizedPrefix) 
                 : configs.find(c => c.prefix === "" || c.default);
 
             if (!config) return fallbackToHome("Slug/Prefix Not Found");
 
-            console.log("Using Registered Config:", id, config.user, config.repo);
-            return fetchTarget(id, config.user, config.repo);
-
+            return fetchTarget(id, sanitizeGitHubIdentifier(config.user), sanitizeGitHubIdentifier(config.repo));
         } catch (e) {
             fallbackToHome("System Resolution Error");
         }

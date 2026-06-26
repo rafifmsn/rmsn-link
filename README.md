@@ -5,8 +5,9 @@ A high-performance, serverless, and completely free link shortener built using A
 ## How It Works
 
 This project leverages a "Client-to-CDN" pattern:
+
 1. **Creation:** The admin dashboard uses your GitHub Personal Access Token (PAT) to commit a JSON file directly to your chosen repository via the GitHub API.
-2. **Storage:** Links are stored as JSON files in a time-structured directory: `data/YYYY/MM/ULID.json`. 
+2. **Storage:** Links are stored as JSON files in a time-structured directory: `data/YYYY/MM/ULID.json`.
 3. **Resolution:** The `404.astro` page acts as a "Smart Resolver." It detects the storage location, fetches the raw data from GitHub's CDN, and performs the redirect.
 
 ## Resolver Flow
@@ -18,44 +19,42 @@ When someone clicks a link, the `404.astro` script executes this logic in order:
 3. **Priority 3 (The Default):** Is it just `domain.com/ID`? If yes, it checks `domains.json` for the entry marked `"default": true`.
 4. **Fallback:** If all the above fail (or the file doesn't exist on GitHub), the system waits 5 seconds and redirects the user to the home page.
 
-## Privacy & Security
+## Privacy, Obfuscation & Security Scope
 
-This project is built on a "Local-First" security model. Since there is no database or backend server, your credentials and data remain under your direct control.
+This project is built on a "Local-First" architecture. Because there is no external database or specialized authentication server, understanding your security boundaries is vital to keeping your environment safe.
 
 ### GitHub Token Protection
+
 Your GitHub Personal Access Token (PAT) is the key to your "database." To protect it from casual exposure, we implement a **Symmetric XOR Obfuscation** layer:
 
-* **Static Key Obfuscation:** The script uses an internal `OBS_KEY` constant which serves as the "password" for both the encryption and decryption processes.
-* **XOR Operation:** This is a bitwise operation where each character of your token is shifted against a corresponding character in the key. It is computationally inexpensive and perfectly reversible.
-* **Base64 Wrapper:** After the XOR shift, the resulting string is wrapped in `btoa()` (Base64). This ensures the scrambled data is stored as a stable ASCII string safe to persist in the browser (we store it encrypted in IndexedDB).
-* **Deterministic Flow:** This process is strictly deterministic—the same token always produces the same encrypted string, allowing for seamless retrieval without a backend.
+- **Static Key Obfuscation:** The script uses an internal `OBS_KEY` constant which serves as the "password" for both the encryption and decryption processes.
+- **XOR Operation:** This is a bitwise operation where each character of your token is shifted against a corresponding character in the key. It is computationally inexpensive and perfectly reversible.
+- **Base64 Wrapper:** After the XOR shift, the resulting string is wrapped in `btoa()` (Base64). This ensures the scrambled data is stored as a stable ASCII string safe to persist in the browser (we store it encrypted in IndexedDB).
+- **Deterministic Flow:** This process is strictly deterministic—the same token always produces the same encrypted string, allowing for seamless retrieval without a backend.
 
 **Logic Flow:**
-* **Storage:** `Token` + `Static Key` → `XOR Bitshift` → `Base64 Encode` → `IndexedDB` (encrypted).
-* **Retrieval:** `IndexedDB` → `Base64 Decode` → `XOR Bitshift` (with same Key) → `Original Token`.
 
-* **Clearing Saved Token:** To remove a previously saved token from the browser, use the trash icon next to the Token field in the dashboard — this clears the stored token from IndexedDB.
+- **Storage:** `Token` + `Static Key` → `XOR Bitshift` → `Base64 Encode` → `IndexedDB` (encrypted).
+- **Retrieval:** `IndexedDB` → `Base64 Decode` → `XOR Bitshift` (with same Key) → `Original Token`.
+- **Clearing Saved Token:** To remove a previously saved token from the browser, use the trash icon next to the Token field in the dashboard — this clears the stored token from IndexedDB.
 
-### Why This Matters for Static Apps
-In a pure frontend environment (Astro/Static HTML), true "unbreakable" encryption is impossible because the "lock" and the "key" are both delivered to the user's browser. However, this method provides a solid defense against:
-* **Malicious Extensions:** Many browser extensions scan local storage for strings starting with `ghp_` (the standard GitHub prefix). By obfuscating it, that signature disappears.
-* **Shoulder Surfing:** If someone views your browser's DevTools, they see a scrambled Base64 string instead of your actual credential.
-* **Accidental Leaks:** If you share a screenshot of your local storage for debugging, your token remains hidden.
+### Security Boundaries
 
-### Infrastructure Security
-* **No Middleman:** Your token never touches a third-party server. The browser communicates directly with `api.github.com`.
-* **Zero Trust:** For maximum security, it is **highly recommended** to protect your deployment with **Cloudflare Zero Trust**. This ensures that even with obfuscation, the dashboard interface is only accessible by authorized users.
+While both the creation dashboard and the resolver engine apply sanitization rules to block persistent Cross-Site Scripting (XSS) and path-traversal inputs, you must understand what this client-side crypto approach actually defends against:
 
-## Tech Stack
+| Threat Vector                                        | Security Layer / Status                   | What It Actually Means                                                                                                                                                                                                                                                                                       |
+| ---------------------------------------------------- | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **External Websites Trying to Steal Data**           | **Protected** (via Browser SOP)           | The browser's Same-Origin Policy (SOP) completely locks down your IndexedDB file. `evil.com` cannot view or query your application's data.                                                                                                                                                                   |
+| **Malicious Browser Extensions / Shoulder Surfing**  | **Protected** (via XOR Obfuscation)       | Hides the structural `ghp_` prefix signature from extension scrapers and masks your plain text token if someone looks over your shoulder at your DevTools panel.                                                                                                                                             |
+| **Active Cross-Site Scripting (XSS) Data Theft**     | **Fully Neutered** (via Cloudflare CSP)\* | **XOR is obfuscation, not high-grade encryption.** If an attacker gains script execution inside your origin, they can read the local key and decrypt the token. However, because our strict CSP headers are active, **the browser will instantly block them from sending that token to an external server.** |
+| **Physical Theft of Device / Unlocked Workstations** | **Not Protected** (OS Dependent)          | If an unauthorized individual accesses your physical machine, they can use browser inspection interfaces to interact with local memory variables.                                                                                                                                                            |
 
-| Component | Technology |
-| :--- | :--- |
-| **Framework** | Astro 6.1.5 (TypeScript) |
-| **Styling** | Tailwind CSS v4 (Alpha/Vite Engine) |
-| **Icons** | Iconoir |
-| **Deployment** | Cloudflare Pages |
-| **Database** | GitHub Repositories (via Raw CDN) |
-| **ID Strategy** | ULID (10-character Timestamp) |
+\* _Note: CSP protection relies on deploying the site to a hosting provider that natively respects and processes the custom `_headers` file configuration (such as Cloudflare Pages)._
+
+**Security Tips:**
+
+- **Use Fine-Grained GitHub Tokens:** Do not use full-access developer accounts. Issue a **Fine-Grained Personal Access Token** limited exclusively to the specific repository acting as your link database, granting write/read permissions strictly to its file contents.
+- **Guard Dashboard Access:** For true enterprise isolation, secure your dashboard interface behind **Cloudflare Zero Trust** or an equivalent identity provider. This ensures only authorized identities can load the dashboard assets.
 
 ## Data Structure
 
@@ -67,6 +66,7 @@ repository-root/
     └── 2026/
         └── 02/
             └── 01KGK9DBCY.json
+
 ```
 
 **JSON Schema:**
@@ -82,38 +82,38 @@ repository-root/
 
 ## Setup & Configuration
 
-## 1. Repository Setup
+**1. Repository Setup**
 
 - Create a public GitHub repository to hold your link data.
 - Configure `public/domains.json` in your Astro project:
+  ```json
+  [
+    {
+      "prefix": "",
+      "name": "Default",
+      "user": "your-username",
+      "repo": "your-link-repo",
+      "default": true
+    },
+    {
+      "prefix": "dl",
+      "name": "Downloads",
+      "user": "your-username",
+      "repo": "another-repo"
+    }
+  ]
+  ```
 
-```json
-[
-  {
-    "prefix": "",
-    "name": "Default",
-    "user": "your-user",
-    "repo": "your-link-repo",
-    "default": true
-  },
-  {
-    "prefix": "dl",
-    "name": "Downloads",
-    "user": "your-user",
-    "repo": "another-repo"
-  }
-]
-```
-
-## 2. Deployment
+**2. Deployment**
 
 - Connect your repository to Cloudflare Pages.
 - Build Settings:
-  - Framework: `Astro`
-  - Build Command: `npm run build`
-  - Output Directory: `dist`
+- Framework: `Astro`
+- Build Command: `npm run build`
+- Output Directory: `dist`
 
-3. Usage
+**3. Usage**
+
 - Open your deployed dashboard.
 - Enter your PAT and Destination URL.
 - The "Smart Match" logic automatically detects if you are using a registered repo and generates a clean URL. Otherwise, it generates a portable Hash-based URL.

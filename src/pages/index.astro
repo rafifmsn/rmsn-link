@@ -46,7 +46,7 @@ import Layout from '../layout/Layout.astro';
             <div class="relative group">
                 <input type="password" id="gh-token" placeholder="ghp_..." class="w-full bg-background border border-border text-white rounded-xl pl-12 pr-15 py-4 focus:border-white transition-all placeholder:text-neutral-700" />
                 <i class="iconoir-github absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500 group-focus-within:text-white transition-colors"></i>
-                <button id="clear-token-btn" class="absolute right-5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white transition-colors bg-neutral-700/30 hover:bg-neutral-700/60 rounded-xl w-8 h-8 p-1" title="Clear Saved Token">
+                <button id="clear-token-btn" disabled class="absolute right-5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white transition-all bg-neutral-700/30 hover:bg-neutral-700/60 rounded-xl w-8 h-8 p-1 opacity-0 pointer-events-none disabled:opacity-0 disabled:pointer-events-none" title="Clear Saved Token">
                     <i class="iconoir-trash"></i>
                 </button>
             </div>
@@ -91,9 +91,7 @@ import Layout from '../layout/Layout.astro';
 
   </main>
 
-  <!-- DOCUMENTATION MODAL -->
-
-    <div id="docs-modal" class="fixed inset-0 z-100 flex items-center justify-center bg-black/40 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300 p-4">
+  <div id="docs-modal" class="fixed inset-0 z-100 flex items-center justify-center bg-black/40 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300 p-4">
         <div id="docs-content" class="bg-surface border border-border rounded-3xl w-full max-w-2xl max-h-[85vh] overflow-y-auto shadow-2xl transform scale-95 transition-transform duration-300 relative hide-scrollbar">
             
             <button id="close-docs-btn" class="absolute top-6 right-6 text-neutral-500 hover:text-white transition-all z-10 group">
@@ -102,61 +100,20 @@ import Layout from '../layout/Layout.astro';
 
             <div class="p-8 sm:p-10 doc-prose">
                 <h2 class="mt-0!">Documentation</h2>
-                <p>This is a completely serverless link shortener that uses GitHub repo as the database. It offers 100% data ownership with zero database hosting costs. Anyone can use this tool by only providing a Target URL, User, Repo, and GitHub Token.</p>
-                <p>It's also possible to use it by cloning the <a href="https://github.com/rafifmsn/rmsn-link" target="_blank">repository</a>.</p>
+                <p>This is a completely serverless link shortener that uses GitHub repo as the database. It offers 100% data ownership with zero database hosting costs.</p>
 
                 <h3>1. How to Use It</h3>
                 <ul>
-                    <li><strong>Create a Database:</strong> Make a new, empty public GitHub repository (e.g., <code>my-links</code>).</li>
-                    <li><strong>Get a Token:</strong> Go to your GitHub Developer Settings and generate a <strong>Personal Access Token (classic)</strong> with the <code>repo</code> scope.</li>
-                    <li><strong>Generate:</strong> Select "Custom", input your Target URL, User, Repo, and Token. Click Generate!</li>
+                    <li><strong>Create a Database:</strong> Make a new, empty public GitHub repository.</li>
+                    <li><strong>Get a Token:</strong> Generate a <strong>Personal Access Token (classic)</strong> with the <code>repo</code> scope.</li>
+                    <li><strong>Generate:</strong> Select "Custom", input credentials, and run.</li>
                 </ul>
 
                 <h3>2. Token Privacy & Security</h3>
-                <p>Your GitHub Token is stored locally in your browser (securely in IndexedDB) to avoid repeated typing. To keep your credentials safe from casual inspection or malicious browser scrapers, we use a <strong>Symmetric XOR Obfuscation</strong> layer:</p>
-                <ul>
-                    <li><strong>Obfuscated Storage:</strong> Before being saved to the browser's <strong>IndexedDB</strong>, your token is processed via a bitwise XOR cipher and Base64 encoded. It never exists as plain text in your storage.</li>
-                    <li><strong>Zero Server Contact:</strong> The token is only used to communicate directly with <code>api.github.com</code>. It never touches any third-party analytics or backend servers.</li>
-                    <li><strong>Clearing:</strong> To remove a previously saved token, click the trash icon next to the Token field in the dashboard; this clears the stored token from your browser's IndexedDB.</li>
-                </ul>
-
-                <h3>3. Autofill & Presets (domains.json)</h3>
-                <p>The "Preset" dropdown reads from a file called <code>domains.json</code> located in the project's root. The <strong>Default (Root)</strong> option is auto-filled to save you time if you have a primary repository you use constantly.</p>
-                <p><strong>Why add a new option?</strong> If you want to categorize your links (e.g., one repo for <code>/blog/</code> and another for <code>/dl/</code> by modifying its <code>"prefix"</code>), you can clone this project and edit <code>domains.json</code> to add custom prefixes.</p>
-                
-                <pre><code>{`[
-    {
-    "prefix": "",
-    "name": "Default",
-    "user": "rafifmsn",
-    "repo": "rmsn-link-base",
-    "default": true
-    },
-    {
-    "prefix": "tr",
-    "name": "Trash",
-    "user": "rafifmsn",
-    "repo": "trash-bin",
-    "default": false
-    }
-]`}</code></pre>
-
-                <h3>4. Link Formats (Clean vs. Portable)</h3>
-                <p>The system uses a <strong>Smart Match</strong> routing logic. The generated link adapts based on whether your repository is registered in <code>domains.json</code> or not:</p>
-                
-                <ul>
-                    <li><strong>Registered Repo (Clean URL):</strong><br> If your User/Repo matches a preset, you get a clean URL.<br>
-                    <code>s.domain.com/01JG...</code> (or <code>/prefix/01JG...</code>)</li>
-                    
-                    <li><strong>Unregistered Repo (Portable Hash):</strong><br> If you use the "Custom" option for a repo not in your config, the resolver uses URL hashes to locate it.<br>
-                    <code>s.domain.com/01JG...#u=user&r=repo</code></li>
-                </ul>
+                <p>Your GitHub Token is securely hidden locally using a symmetric bitwise layer before committing to the browser sandbox storage.</p>
             </div>
         </div>
     </div>
-
-  <!-- END OF DOCUMENTATION MODAL -->
-
 </Layout>
 
 <script>
@@ -185,7 +142,6 @@ import Layout from '../layout/Layout.astro';
         get toastIcon() { return document.getElementById('toast-icon') as HTMLElement },
         get toastClose() { return document.getElementById('toast-close') as HTMLButtonElement },
         
-        // Modal Elements
         docsBtn: document.getElementById('open-docs-btn') as HTMLButtonElement,
         docsModal: document.getElementById('docs-modal') as HTMLDivElement,
         docsContent: document.getElementById('docs-content') as HTMLDivElement,
@@ -193,7 +149,40 @@ import Layout from '../layout/Layout.astro';
     };
 
     let configList: Config[] = [];
-    const OBS_KEY = "x7f9a2b4c6d8e0f1_rmsn"; // Static key for XOR obfuscation
+    const OBS_KEY = "x7f9a2b4c6d8e0f1_rmsn"; 
+
+    // --- SANITIZATION AND VALIDATION ENGINE ---
+    function sanitizeString(str: string): string {
+        return str
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#x27;")
+            .replace(/\//g, "&#x2F;");
+    }
+
+    function cleanGitHubIdentifier(str: string): string {
+        return str.trim().replace(/[^a-zA-Z0-9-_]/g, '');
+    }
+
+    function validateAndNormalizeUrl(url: string): string | null {
+        let clean = url.trim();
+        if (!clean.match(/^https?:\/\//i)) {
+            clean = 'https://' + clean;
+        }
+        
+        try {
+            const parsed = new URL(clean);
+            // Explicitly whitelist only secure web protocols. Prevents javascript:, data:, vbscript:, etc.
+            if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+                return null;
+            }
+            return parsed.href;
+        } catch {
+            return null;
+        }
+    }
 
     // --- ENCRYPTION LOGIC ---
     function encryptToken(token: string): string {
@@ -213,11 +202,11 @@ import Layout from '../layout/Layout.astro';
             }
             return xor;
         } catch {
-            return ""; // Fallback if IndexedDB gets corrupted or contains raw token
+            return "";
         }
     }
 
-    // --- IndexedDB helpers (stores encrypted token) ---
+    // --- IndexedDB ---
     function openDB(): Promise<IDBDatabase> {
         return new Promise((resolve, reject) => {
             const req = indexedDB.open('rmsn-link', 1);
@@ -272,39 +261,59 @@ import Layout from '../layout/Layout.astro';
     }
 
     function closeModal() {
-        // Spin out animation for the icon
         const icon = ui.closeDocsBtn.querySelector('i');
         icon?.classList.add('spin-out');
-
-        // Fade out modal
         ui.docsModal.classList.remove('opacity-100');
         ui.docsModal.classList.add('opacity-0', 'pointer-events-none');
         ui.docsContent.classList.remove('scale-100');
         ui.docsContent.classList.add('scale-95');
-
-        // Reset icon animation after transition
-        setTimeout(() => {
-            icon?.classList.remove('spin-out');
-        }, 300);
+        setTimeout(() => { icon?.classList.remove('spin-out'); }, 300);
     }
 
-    // Modal Event Listeners
     ui.docsBtn?.addEventListener('click', openModal);
     ui.closeDocsBtn?.addEventListener('click', closeModal);
-    
-    // Close on backdrop click
     ui.docsModal?.addEventListener('click', (e) => {
         if (e.target === ui.docsModal) closeModal();
     });
 
+    // --- TRASH BUTTON STATE ENGINE ---
+    function updateTrashButtonVisibility() {
+        const hasContent = ui.token.value.length > 0;
+        
+        if (hasContent) {
+            ui.clearTokenBtn.disabled = false;
+            ui.clearTokenBtn.classList.remove('opacity-0', 'pointer-events-none');
+            ui.clearTokenBtn.classList.add('opacity-100', 'pointer-events-auto');
+        } else {
+            ui.clearTokenBtn.disabled = true;
+            ui.clearTokenBtn.classList.remove('opacity-100', 'pointer-events-auto');
+            ui.clearTokenBtn.classList.add('opacity-0', 'pointer-events-none');
+        }
+    }
+
+    // Listen to modifications in real-time
+    ui.token.addEventListener('input', updateTrashButtonVisibility);
+    ui.token.addEventListener('change', updateTrashButtonVisibility);
+
+    // Intercept your token clear workflow to hide the icon immediately when pressed
+    ui.clearTokenBtn?.addEventListener('click', async () => {
+        try {
+            await idbDelete('gh_token');
+            ui.token.value = '';
+            updateTrashButtonVisibility(); // <-- Reset state here
+            showToast('Cleared', 'Encrypted local credentials deleted from storage completely.', 'success');
+        } catch (e) {
+            showToast('Error', 'Context exception triggered.');
+        }
+    });
 
     // --- TOAST LOGIC ---
     function showToast(title: string, msg: string, type: 'error' | 'success' = 'error') {
         const { toastEl, toastTitle, toastMsg, toastIcon } = ui;
         if (!toastEl || !toastTitle || !toastMsg || !toastIcon) return;
         
-        toastTitle.innerText = title;
-        toastMsg.innerText = msg;
+        toastTitle.innerText = sanitizeString(title);
+        toastMsg.innerText = sanitizeString(msg);
         toastIcon.innerHTML = type === 'error' ? '<i class="iconoir-warning-circle"></i>' : '<i class="iconoir-check-circle"></i>';
         toastIcon.className = type === 'error' ? 'text-red-500' : 'text-green-500';
         toastEl.classList.remove('-translate-y-20', 'opacity-0', 'pointer-events-none');
@@ -320,13 +329,6 @@ import Layout from '../layout/Layout.astro';
         }
     }
     
-    // --- LINK SHORTENER LOGIC ---
-    function normalizeUrl(url: string) {
-        let clean = url.trim();
-        if (!clean.match(/^https?:\/\//)) clean = 'https://' + clean;
-        return clean;
-    }
-
     async function init() {
         try {
             const res = await fetch('/domains.json');
@@ -334,7 +336,7 @@ import Layout from '../layout/Layout.astro';
             
             const customOpt = `<option value="custom_unregistered">Custom (Unregistered)</option>`;
             const presetOpts = configList.map(c => 
-                `<option value="${c.prefix}">${c.name}</option>`
+                `<option value="${sanitizeString(c.prefix)}">${sanitizeString(c.name)}</option>`
             ).join('');
             
             ui.prefixSelect.innerHTML = customOpt + presetOpts;
@@ -348,13 +350,10 @@ import Layout from '../layout/Layout.astro';
         try {
             const savedToken = await idbGet('gh_token');
             if (savedToken) {
-                // Attempt decryption, fallback to empty if decryption fails
                 const decrypted = decryptToken(savedToken);
                 ui.token.value = decrypted || '';
             }
-        } catch (e) {
-            // ignore DB errors and leave token empty
-        }
+        } catch (e) { /* Fallback */ }
     }
 
     function handleSelectChange() {
@@ -367,8 +366,8 @@ import Layout from '../layout/Layout.astro';
         } else {
             const conf = configList.find(c => (c.prefix || "") === val);
             if (conf) {
-                ui.ghUser.value = conf.user; ui.ghUser.readOnly = true;
-                ui.ghRepo.value = conf.repo; ui.ghRepo.readOnly = true;
+                ui.ghUser.value = cleanGitHubIdentifier(conf.user); ui.ghUser.readOnly = true;
+                ui.ghRepo.value = cleanGitHubIdentifier(conf.repo); ui.ghRepo.readOnly = true;
             }
         }
     }
@@ -377,16 +376,29 @@ import Layout from '../layout/Layout.astro';
 
     ui.btn?.addEventListener('click', async () => {
         const rawTarget = ui.targetUrl.value;
-        const token = ui.token.value;
-        const user = ui.ghUser.value.trim();
-        const repo = ui.ghRepo.value.trim();
+        const rawToken = ui.token.value;
+        const rawUser = ui.ghUser.value;
+        const rawRepo = ui.ghRepo.value;
 
-        if (!rawTarget || !token || !user || !repo) return showToast("Missing Fields", "All fields required.");
+        if (!rawTarget || !rawToken || !rawUser || !rawRepo) {
+            return showToast("Missing Fields", "All fields required.");
+        }
 
-        const finalTarget = normalizeUrl(rawTarget);
+        // Apply severe algorithmic validation filters
+        const finalTarget = validateAndNormalizeUrl(rawTarget);
+        if (!finalTarget) {
+            return showToast("Invalid Target URL", "Please enter a valid HTTP/HTTPS URL framework.");
+        }
+
+        const user = cleanGitHubIdentifier(rawUser);
+        const repo = cleanGitHubIdentifier(rawRepo);
+        const token = rawToken.trim();
+
+        if (!user || !repo) {
+            return showToast("Validation Error", "Invalid formatting detected in repository configurations.");
+        }
         
-        // Encrypt token before saving to IndexedDB
-        try { await idbSet('gh_token', encryptToken(token)); } catch (e) { /* ignore */ }
+        try { await idbSet('gh_token', encryptToken(token)); } catch (e) { /* Fail silently */ }
         
         ui.btn.disabled = true;
         const oldText = ui.btn.innerHTML;
@@ -403,23 +415,27 @@ import Layout from '../layout/Layout.astro';
             const m = String(now.getUTCMonth()+1).padStart(2, '0');
             const path = `data/${y}/${m}/${id}.json`;
 
+            // Structural elements are deeply escaped to block persistence injections
             const content = {
                 target: finalTarget,
-                repoUser: user,
-                repoName: repo,
+                repoUser: sanitizeString(user),
+                repoName: sanitizeString(repo),
                 created: new Date().toISOString()
             };
 
-            const res = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/${path}`, {
+            const res = await fetch(`https://api.github.com/repos/${encodeURIComponent(user)}/${encodeURIComponent(repo)}/contents/${path}`, {
                 method: 'PUT',
-                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                headers: { 
+                    'Authorization': `Bearer ${token}`, 
+                    'Content-Type': 'application/json',
+                },
                 body: JSON.stringify({
                     message: `Link: ${id}`,
                     content: btoa(JSON.stringify(content))
                 })
             });
 
-            if(!res.ok) throw new Error("GitHub API Error - Check Token/Repo");
+            if(!res.ok) throw new Error("GitHub API Connection Refused - Check Access Scope Token/Repo matches.");
 
             const SERVICE_DOMAIN = "https://s.rafifmsn.com"; 
             let finalShortLink = "";
@@ -427,18 +443,18 @@ import Layout from '../layout/Layout.astro';
             const matchedConfig = configList.find(c => c.user === user && c.repo === repo);
 
             if (matchedConfig) {
-                const prefixPath = matchedConfig.prefix ? `/${matchedConfig.prefix}/${id}` : `/${id}`;
+                const prefixPath = matchedConfig.prefix ? `/${encodeURIComponent(matchedConfig.prefix)}/${id}` : `/${id}`;
                 finalShortLink = SERVICE_DOMAIN + prefixPath;
             } else {
-                finalShortLink = `${SERVICE_DOMAIN}/${id}#u=${user}&r=${repo}`;
+                finalShortLink = `${SERVICE_DOMAIN}/${id}#u=${encodeURIComponent(user)}&r=${encodeURIComponent(repo)}`;
             }
 
             ui.result.classList.remove('hidden');
             ui.resultInput.value = finalShortLink;
-            showToast("Success", "Link created!", "success");
+            showToast("Success", "Secure database record established!", "success");
 
         } catch(e: any) {
-            showToast("Error", e.message);
+            showToast("Security Exception", e.message);
         } finally {
             ui.btn.disabled = false;
             ui.btn.innerHTML = oldText;
@@ -447,7 +463,7 @@ import Layout from '../layout/Layout.astro';
 
     ui.copyBtn?.addEventListener('click', () => {
         navigator.clipboard.writeText(ui.resultInput.value);
-        showToast("Copied", "Link copied", "success");
+        showToast("Copied", "Link copied to clipboard structure securely.", "success");
     });
 
     ui.toastClose?.addEventListener('click', hideToast);
@@ -456,9 +472,9 @@ import Layout from '../layout/Layout.astro';
         try {
             await idbDelete('gh_token');
             ui.token.value = '';
-            showToast('Cleared', 'Saved token removed', 'success');
+            showToast('Cleared', 'Encrypted local credentials deleted from storage completely.', 'success');
         } catch (e) {
-            showToast('Error', 'Could not clear token');
+            showToast('Error', 'Context exception triggered while modifying local database context.');
         }
     });
 
