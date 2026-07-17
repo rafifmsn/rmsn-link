@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  rmsn-link:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        PUBLIC_BRAND_NAME: "${PUBLIC_BRAND_NAME:-Rafif Muchsin}"
+        PUBLIC_APP_URL: "${PUBLIC_APP_URL:-https://s.rafifmsn.com}"
+    ports:
+      - "${PORT:-8080}:80"
+    restart: unless-stopped

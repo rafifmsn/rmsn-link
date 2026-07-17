@@ -1,122 +1,293 @@
 ---
-import Layout from '../layout/Layout.astro';
+import Layout from "../layout/Layout.astro";
+import {
+    ChevronDown,
+    Link,
+    Trash,
+    Zap,
+    Copy,
+    CircleAlert,
+    CircleCheckBig,
+    X,
+    LoaderCircle,
+    KeyRound,
+    Download,
+} from "@lucide/astro";
+
+const brandName = import.meta.env.PUBLIC_BRAND_NAME || "Rafif Muchsin";
 ---
 
-<Layout title="Link Shortener">
-  <main class="max-w-xl flex flex-col min-h-screen w-full relative z-10 mx-auto px-6 py-18 md:py-0 md:justify-center">
+<Layout title={`Link Shortener - ${brandName}`}>
+    <main
+        class="max-w-xl flex flex-col min-h-screen w-full relative z-10 mx-auto px-6 py-12 md:py-16 justify-center"
+    >
+        <div class="mb-10 text-center">
+            <h1 class="text-4xl font-bold text-white mb-2 tracking-tight">
+                {brandName}
+            </h1>
+            <p class="text-neutral-500 text-sm uppercase tracking-widest">
+                Link Shortener
+            </p>
+        </div>
 
-    <div class="mb-10 text-center">
-        <h1 class="text-4xl font-bold text-white mb-2 tracking-tight">Rafif Muchsin</h1>
-        <p class="text-neutral-500 text-sm uppercase tracking-widest">Link Shortener</p>
-    </div>
-    
-    <div class="space-y-5 bg-surface p-6 sm:p-8 rounded-3xl border border-border shadow-2xl">
-        
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <label class="text-xs font-bold text-neutral-600 uppercase tracking-wider">Target & Preset</label>
-            
-            <div class="relative min-w-35 sm:min-w-40">
-                <select id="prefix-select" class="w-full border border-border bg-background rounded-xl pl-4 pr-10 py-4 text-sm focus:border-white focus:outline-none focus:ring-2 focus:ring-white/50 transition-all appearance-none cursor-pointer hover:bg-white/5"></select>
-                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-neutral-400">
-                    <i class="iconoir-nav-arrow-down text-neutral-600 pointer-events-none text-2xl"></i>
+        <div
+            class="space-y-5 bg-surface p-6 sm:p-8 rounded-3xl border border-border shadow-2xl"
+        >
+            <div
+                class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
+            >
+                <label
+                    class="text-xs font-bold text-neutral-600 uppercase tracking-wider"
+                    >Target & Preset</label
+                >
+
+                <div class="relative min-w-35 sm:min-w-40">
+                    <select
+                        id="prefix-select"
+                        class="w-full border border-border bg-background rounded-xl pl-4 pr-10 py-4 text-sm focus:border-white focus:outline-none focus:ring-2 focus:ring-white/50 transition-all appearance-none cursor-pointer hover:bg-white/5"
+                    ></select>
+                    <div
+                        class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-neutral-400"
+                    >
+                        <ChevronDown
+                            class="w-5 h-5 text-neutral-600 pointer-events-none"
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="relative group">
+                    <input
+                        type="text"
+                        id="long-url"
+                        placeholder="https://..."
+                        class="w-full bg-background border border-border text-white rounded-xl pl-12 pr-4 py-5 focus:border-white transition-all placeholder:text-neutral-700 text-sm"
+                    />
+                    <Link
+                        class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500 group-focus-within:text-white transition-colors"
+                    />
+                </div>
+            </div>
+
+            <div class="pt-2 grid grid-cols-2 gap-4">
+                <div>
+                    <label
+                        class="block text-[10px] font-bold text-neutral-600 mb-1 uppercase tracking-wider"
+                        >GitHub User</label
+                    >
+                    <input
+                        type="text"
+                        id="gh-user"
+                        class="w-full bg-background border border-border text-neutral-300 text-sm placeholder:text-neutral-700 rounded-lg px-3 py-2 focus:border-white transition-all"
+                    />
+                </div>
+                <div>
+                    <label
+                        class="block text-[10px] font-bold text-neutral-600 mb-1 uppercase tracking-wider"
+                        >Repo Name</label
+                    >
+                    <input
+                        type="text"
+                        id="gh-repo"
+                        class="w-full bg-background border border-border text-neutral-300 text-sm placeholder:text-neutral-700 rounded-lg px-3 py-2 focus:border-white transition-all"
+                    />
+                </div>
+            </div>
+
+            <div>
+                <label
+                    class="block text-xs font-bold text-neutral-600 mb-2 uppercase tracking-wider"
+                    >GitHub Token</label
+                >
+                <div class="relative group">
+                    <input
+                        type="password"
+                        id="gh-token"
+                        placeholder="ghp_..."
+                        class="w-full bg-background border border-border text-white rounded-xl pl-12 pr-15 py-4 focus:border-white transition-all placeholder:text-neutral-700"
+                    />
+                    <KeyRound
+                        class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500 group-focus-within:text-white transition-colors"
+                    />
+                    <button
+                        id="clear-token-btn"
+                        disabled
+                        class="absolute right-5 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-white transition-all bg-neutral-700/30 hover:bg-neutral-700/60 rounded-xl w-8 h-8 flex items-center justify-center p-1.5 opacity-0 pointer-events-none disabled:opacity-0 disabled:pointer-events-none"
+                        title="Clear Saved Token"
+                    >
+                        <Trash class="w-4 h-4" />
+                    </button>
+                </div>
+            </div>
+
+            <button
+                id="shorten-btn"
+                class="w-full bg-white text-black text-sm font-semibold py-4 rounded-xl hover:bg-neutral-200 active:scale-[0.98] transition-all flex items-center justify-center gap-3 mt-4"
+            >
+                <span id="shorten-btn-text" class="uppercase"
+                    >Generate Link</span
+                >
+                <Zap id="shorten-btn-icon" class="w-4 h-4" />
+                <LoaderCircle
+                    id="shorten-btn-loader"
+                    class="w-4 h-4 animate-spin hidden"
+                />
+            </button>
+
+            <div class="text-center mt-2">
+                <button
+                    id="open-docs-btn"
+                    class="text-sm text-neutral-500 hover:text-white underline decoration-neutral-700 underline-offset-4 transition-colors"
+                >
+                    How does this work?
+                </button>
+            </div>
+
+            <div
+                id="result-area"
+                class="hidden pt-6 border-t border-border/50 animate-in fade-in slide-in-from-top-4"
+            >
+                <p
+                    class="text-[10px] text-neutral-500 mb-2 uppercase font-semibold tracking-[0.2em]"
+                >
+                    Ready to share
+                </p>
+                <div class="flex gap-2">
+                    <input
+                        type="text"
+                        id="short-result"
+                        readonly
+                        class="flex-1 bg-background border border-border text-white rounded-xl px-4 py-3 text-xs focus:ring-0 select-all"
+                    />
+                    <button
+                        id="copy-btn"
+                        class="flex justify-center items-center bg-surface border border-border hover:bg-white hover:text-black text-white px-5 rounded-xl transition-all active:scale-90"
+                    >
+                        <Copy class="w-4 h-4" />
+                    </button>
+                </div>
+
+                <!-- QR Code Section -->
+                <div
+                    class="mt-4 flex flex-col items-center bg-surface border border-border/50 rounded-2xl p-4 animate-in fade-in slide-in-from-top-2 duration-300"
+                >
+                    <div class="p-2.5 bg-white rounded-xl shadow-inner">
+                        <canvas id="qr-canvas" class="w-36 h-36 block"></canvas>
+                    </div>
+                    <button
+                        id="download-qr-btn"
+                        class="mt-3 flex items-center gap-2 text-xs text-neutral-400 hover:text-white transition-colors py-1.5 px-3 rounded-lg hover:bg-neutral-800 border border-transparent hover:border-border"
+                    >
+                        <Download class="w-3.5 h-3.5" />
+                        <span>Download QR Code</span>
+                    </button>
                 </div>
             </div>
         </div>
 
-        <div>
-            <div class="relative group">
-                <input type="text" id="long-url" placeholder="https://..." class="w-full bg-background border border-border text-white rounded-xl pl-12 pr-4 py-5 focus:border-white transition-all placeholder:text-neutral-700 text-sm" />
-                <i class="iconoir-link absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500 group-focus-within:text-white transition-colors"></i>
-            </div>
-        </div>
-
-        <div class="pt-2 grid grid-cols-2 gap-4">
-            <div>
-                <label class="block text-[10px] font-bold text-neutral-600 mb-1 uppercase tracking-wider">GitHub User</label>
-                <input type="text" id="gh-user" class="w-full bg-background border border-border text-neutral-300 text-sm placeholder:text-neutral-700 rounded-lg px-3 py-2 focus:border-white transition-all" />
-            </div>
-            <div>
-                <label class="block text-[10px] font-bold text-neutral-600 mb-1 uppercase tracking-wider">Repo Name</label>
-                <input type="text" id="gh-repo" class="w-full bg-background border border-border text-neutral-300 text-sm placeholder:text-neutral-700 rounded-lg px-3 py-2 focus:border-white transition-all" />
-            </div>
-        </div>
-
-        <div>
-            <label class="block text-xs font-bold text-neutral-600 mb-2 uppercase tracking-wider">GitHub Token</label>
-            <div class="relative group">
-                <input type="password" id="gh-token" placeholder="ghp_..." class="w-full bg-background border border-border text-white rounded-xl pl-12 pr-15 py-4 focus:border-white transition-all placeholder:text-neutral-700" />
-                <i class="iconoir-github absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500 group-focus-within:text-white transition-colors"></i>
-                <button id="clear-token-btn" disabled class="absolute right-5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white transition-all bg-neutral-700/30 hover:bg-neutral-700/60 rounded-xl w-8 h-8 p-1 opacity-0 pointer-events-none disabled:opacity-0 disabled:pointer-events-none" title="Clear Saved Token">
-                    <i class="iconoir-trash"></i>
+        <div
+            id="toast"
+            class="fixed top-6 left-1/2 -translate-x-1/2 z-50 transform transition-all duration-300 -translate-y-20 opacity-0 pointer-events-none"
+        >
+            <div
+                class="bg-surface border border-border text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-4 min-w-75"
+            >
+                <div id="toast-icon" class="text-red-500">
+                    <CircleAlert id="toast-icon-error" class="w-5 h-5 hidden" />
+                    <CircleCheckBig
+                        id="toast-icon-success"
+                        class="w-5 h-5 hidden"
+                    />
+                </div>
+                <div class="flex-1 space-y-1.5 ml-1.5">
+                    <h4 id="toast-title" class="font-bold text-sm">Error</h4>
+                    <p id="toast-message" class="text-xs text-neutral-400">
+                        Something went wrong
+                    </p>
+                </div>
+                <button
+                    id="toast-close"
+                    class="text-neutral-500 hover:text-white transition-colors"
+                >
+                    <X class="w-4 h-4" />
                 </button>
             </div>
         </div>
+    </main>
 
-        <button id="shorten-btn" class="w-full bg-white text-black text-sm font-semibold py-4 rounded-xl hover:bg-neutral-200 active:scale-[0.98] transition-all flex items-center justify-center gap-3 mt-4">
-            <span class="uppercase">Generate Link</span>
-            <i class="iconoir-flash"></i>
-        </button>
-
-        <div class="text-center mt-2">
-            <button id="open-docs-btn" class="text-sm text-neutral-500 hover:text-white underline decoration-neutral-700 underline-offset-4 transition-colors">
-                How does this work?
-            </button>
-        </div>
-
-        <div id="result-area" class="hidden pt-6 border-t border-border/50 animate-in fade-in slide-in-from-top-4">
-            <p class="text-[10px] text-neutral-500 mb-2 uppercase font-semibold tracking-[0.2em]">Ready to share</p>
-            <div class="flex gap-2">
-                <input type="text" id="short-result" readonly class="flex-1 bg-background border border-border text-white rounded-xl px-4 py-3 text-xs focus:ring-0 select-all" />
-                <button id="copy-btn" class="flex justify-center items-center bg-surface border border-border hover:bg-white hover:text-black text-white px-5 rounded-xl transition-all active:scale-90">
-                    <i class="iconoir-copy"></i>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <div id="toast" class="fixed top-6 left-1/2 -translate-x-1/2 z-50 transform transition-all duration-300 -translate-y-20 opacity-0 pointer-events-none">
-        <div class="bg-surface border border-border text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-4 min-w-75">
-            <div id="toast-icon" class="text-red-500">
-                <i class="iconoir-warning-circle"></i>
-            </div>
-            <div class="flex-1 space-y-1.5 ml-1.5">
-                <h4 id="toast-title" class="font-bold text-sm">Error</h4>
-                <p id="toast-message" class="text-xs text-neutral-400">Something went wrong</p>
-            </div>
-            <button id="toast-close" class="text-neutral-500 hover:text-white transition-colors">
-                <i class="iconoir-xmark"></i>
-            </button>
-        </div>
-    </div>
-
-  </main>
-
-  <div id="docs-modal" class="fixed inset-0 z-100 flex items-center justify-center bg-black/40 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300 p-4">
-        <div id="docs-content" class="bg-surface border border-border rounded-3xl w-full max-w-2xl max-h-[85vh] overflow-y-auto shadow-2xl transform scale-95 transition-transform duration-300 relative hide-scrollbar">
-            
-            <button id="close-docs-btn" class="absolute top-6 right-6 text-neutral-500 hover:text-white transition-all z-10 group">
-                <i class="iconoir-xmark text-2xl group-hover:rotate-90 transition-transform duration-500 bg-black/60 p-2 rounded-full"></i>
+    <div
+        id="docs-modal"
+        class="fixed inset-0 z-100 flex items-center justify-center bg-black/40 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300 p-4"
+    >
+        <div
+            id="docs-content"
+            class="bg-surface border border-border rounded-3xl w-full max-w-2xl max-h-[85vh] overflow-y-auto shadow-2xl transform scale-95 transition-transform duration-300 relative hide-scrollbar"
+        >
+            <button
+                id="close-docs-btn"
+                class="absolute top-6 right-6 text-neutral-500 hover:text-white transition-all z-10 group"
+            >
+                <X
+                    class="w-9 h-9 p-2 rounded-full bg-black/60 group-hover:rotate-90 transition-transform duration-500"
+                />
             </button>
 
             <div class="p-8 sm:p-10 doc-prose">
                 <h2 class="mt-0!">Documentation</h2>
-                <p>This is a completely serverless link shortener that uses GitHub repo as the database. It offers 100% data ownership with zero database hosting costs.</p>
+                <p>
+                    This is a completely serverless link shortener that uses
+                    GitHub repo as the database. It offers 100% data ownership
+                    with zero database hosting costs.
+                </p>
 
                 <h3>1. How to Use It</h3>
                 <ul>
-                    <li><strong>Create a Database:</strong> Make a new, empty public GitHub repository.</li>
-                    <li><strong>Get a Token:</strong> Generate a <strong>Personal Access Token (classic)</strong> with the <code>repo</code> scope.</li>
-                    <li><strong>Generate:</strong> Select "Custom", input credentials, and run.</li>
+                    <li>
+                        <strong>Create a Database:</strong> Make a new, empty public
+                        GitHub repository.
+                    </li>
+                    <li>
+                        <strong>Get a Token:</strong> Generate a <strong
+                            >Personal Access Token (classic)</strong
+                        > with the <code>repo</code> scope.
+                    </li>
+                    <li>
+                        <strong>Generate:</strong> Select "Custom", input credentials,
+                        and run.
+                    </li>
                 </ul>
 
                 <h3>2. Token Privacy & Security</h3>
-                <p>Your GitHub Token is securely hidden locally using a symmetric bitwise layer before committing to the browser sandbox storage.</p>
+                <p>
+                    Your GitHub Token is securely hidden locally using a
+                    symmetric bitwise layer before committing to the browser
+                    sandbox storage.
+                </p>
+                <p>
+                    You can also self-host this static build or Docker
+                    deployment. To learn more about the security model or
+                    contribute, check out the
+                    <a
+                        href="https://github.com/rafifmsn/rmsn-link"
+                        target="_blank"
+                        rel="noopener noreferrer">@rafifmsn/rmsn-link</a
+                    > repository.
+                </p>
             </div>
         </div>
     </div>
 </Layout>
 
 <script>
+    import QRCode from "qrcode";
+    import {
+        cleanGitHubIdentifier,
+        validateAndNormalizeUrl,
+        encryptToken,
+        decryptToken,
+    } from "../utils/security";
+
     interface Config {
         prefix: string;
         name: string;
@@ -126,31 +297,51 @@ import Layout from '../layout/Layout.astro';
     }
 
     const ui = {
-        prefixSelect: document.getElementById('prefix-select') as HTMLSelectElement,
-        targetUrl: document.getElementById('long-url') as HTMLInputElement,
-        ghUser: document.getElementById('gh-user') as HTMLInputElement,
-        ghRepo: document.getElementById('gh-repo') as HTMLInputElement,
-        token: document.getElementById('gh-token') as HTMLInputElement,
-        clearTokenBtn: document.getElementById('clear-token-btn') as HTMLButtonElement,
-        btn: document.getElementById('shorten-btn') as HTMLButtonElement,
-        result: document.getElementById('result-area') as HTMLDivElement,
-        resultInput: document.getElementById('short-result') as HTMLInputElement,
-        copyBtn: document.getElementById('copy-btn') as HTMLButtonElement,
-        get toastEl() { return document.getElementById('toast') as HTMLDivElement },
-        get toastTitle() { return document.getElementById('toast-title') as HTMLElement },
-        get toastMsg() { return document.getElementById('toast-message') as HTMLElement },
-        get toastIcon() { return document.getElementById('toast-icon') as HTMLElement },
-        get toastClose() { return document.getElementById('toast-close') as HTMLButtonElement },
-        
-        docsBtn: document.getElementById('open-docs-btn') as HTMLButtonElement,
-        docsModal: document.getElementById('docs-modal') as HTMLDivElement,
-        docsContent: document.getElementById('docs-content') as HTMLDivElement,
-        closeDocsBtn: document.getElementById('close-docs-btn') as HTMLButtonElement,
+        qrCanvas: document.getElementById("qr-canvas") as HTMLCanvasElement,
+        downloadQrBtn: document.getElementById(
+            "download-qr-btn",
+        ) as HTMLButtonElement,
+        prefixSelect: document.getElementById(
+            "prefix-select",
+        ) as HTMLSelectElement,
+        targetUrl: document.getElementById("long-url") as HTMLInputElement,
+        ghUser: document.getElementById("gh-user") as HTMLInputElement,
+        ghRepo: document.getElementById("gh-repo") as HTMLInputElement,
+        token: document.getElementById("gh-token") as HTMLInputElement,
+        clearTokenBtn: document.getElementById(
+            "clear-token-btn",
+        ) as HTMLButtonElement,
+        btn: document.getElementById("shorten-btn") as HTMLButtonElement,
+        result: document.getElementById("result-area") as HTMLDivElement,
+        resultInput: document.getElementById(
+            "short-result",
+        ) as HTMLInputElement,
+        copyBtn: document.getElementById("copy-btn") as HTMLButtonElement,
+        get toastEl() {
+            return document.getElementById("toast") as HTMLDivElement;
+        },
+        get toastTitle() {
+            return document.getElementById("toast-title") as HTMLElement;
+        },
+        get toastMsg() {
+            return document.getElementById("toast-message") as HTMLElement;
+        },
+        get toastIcon() {
+            return document.getElementById("toast-icon") as HTMLElement;
+        },
+        get toastClose() {
+            return document.getElementById("toast-close") as HTMLButtonElement;
+        },
+
+        docsBtn: document.getElementById("open-docs-btn") as HTMLButtonElement,
+        docsModal: document.getElementById("docs-modal") as HTMLDivElement,
+        docsContent: document.getElementById("docs-content") as HTMLDivElement,
+        closeDocsBtn: document.getElementById(
+            "close-docs-btn",
+        ) as HTMLButtonElement,
     };
 
     let configList: Config[] = [];
-    const OBS_KEY = "x7f9a2b4c6d8e0f1_rmsn"; 
-
     // --- SANITIZATION AND VALIDATION ENGINE ---
     function sanitizeString(str: string): string {
         return str
@@ -162,57 +353,14 @@ import Layout from '../layout/Layout.astro';
             .replace(/\//g, "&#x2F;");
     }
 
-    function cleanGitHubIdentifier(str: string): string {
-        return str.trim().replace(/[^a-zA-Z0-9-_]/g, '');
-    }
-
-    function validateAndNormalizeUrl(url: string): string | null {
-        let clean = url.trim();
-        if (!clean.match(/^https?:\/\//i)) {
-            clean = 'https://' + clean;
-        }
-        
-        try {
-            const parsed = new URL(clean);
-            // Explicitly whitelist only secure web protocols. Prevents javascript:, data:, vbscript:, etc.
-            if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
-                return null;
-            }
-            return parsed.href;
-        } catch {
-            return null;
-        }
-    }
-
-    // --- ENCRYPTION LOGIC ---
-    function encryptToken(token: string): string {
-        let xor = "";
-        for (let i = 0; i < token.length; i++) {
-            xor += String.fromCharCode(token.charCodeAt(i) ^ OBS_KEY.charCodeAt(i % OBS_KEY.length));
-        }
-        return btoa(xor);
-    }
-
-    function decryptToken(encrypted: string): string {
-        try {
-            const decoded = atob(encrypted);
-            let xor = "";
-            for (let i = 0; i < decoded.length; i++) {
-                xor += String.fromCharCode(decoded.charCodeAt(i) ^ OBS_KEY.charCodeAt(i % OBS_KEY.length));
-            }
-            return xor;
-        } catch {
-            return "";
-        }
-    }
-
     // --- IndexedDB ---
     function openDB(): Promise<IDBDatabase> {
         return new Promise((resolve, reject) => {
-            const req = indexedDB.open('rmsn-link', 1);
+            const req = indexedDB.open("rmsn-link", 1);
             req.onupgradeneeded = () => {
                 const db = req.result;
-                if (!db.objectStoreNames.contains('secrets')) db.createObjectStore('secrets');
+                if (!db.objectStoreNames.contains("secrets"))
+                    db.createObjectStore("secrets");
             };
             req.onsuccess = () => resolve(req.result);
             req.onerror = () => reject(req.error);
@@ -222,8 +370,8 @@ import Layout from '../layout/Layout.astro';
     async function idbGet(key: string): Promise<string | null> {
         const db = await openDB();
         return new Promise((resolve, reject) => {
-            const tx = db.transaction('secrets', 'readonly');
-            const store = tx.objectStore('secrets');
+            const tx = db.transaction("secrets", "readonly");
+            const store = tx.objectStore("secrets");
             const req = store.get(key);
             req.onsuccess = () => resolve(req.result ?? null);
             req.onerror = () => reject(req.error);
@@ -233,8 +381,8 @@ import Layout from '../layout/Layout.astro';
     async function idbSet(key: string, value: string): Promise<void> {
         const db = await openDB();
         return new Promise((resolve, reject) => {
-            const tx = db.transaction('secrets', 'readwrite');
-            const store = tx.objectStore('secrets');
+            const tx = db.transaction("secrets", "readwrite");
+            const store = tx.objectStore("secrets");
             const req = store.put(value, key);
             req.onsuccess = () => resolve();
             req.onerror = () => reject(req.error);
@@ -244,8 +392,8 @@ import Layout from '../layout/Layout.astro';
     async function idbDelete(key: string): Promise<void> {
         const db = await openDB();
         return new Promise((resolve, reject) => {
-            const tx = db.transaction('secrets', 'readwrite');
-            const store = tx.objectStore('secrets');
+            const tx = db.transaction("secrets", "readwrite");
+            const store = tx.objectStore("secrets");
             const req = store.delete(key);
             req.onsuccess = () => resolve();
             req.onerror = () => reject(req.error);
@@ -254,127 +402,175 @@ import Layout from '../layout/Layout.astro';
 
     // --- MODAL LOGIC ---
     function openModal() {
-        ui.docsModal.classList.remove('opacity-0', 'pointer-events-none');
-        ui.docsModal.classList.add('opacity-100');
-        ui.docsContent.classList.remove('scale-95');
-        ui.docsContent.classList.add('scale-100');
+        ui.docsModal.classList.remove("opacity-0", "pointer-events-none");
+        ui.docsModal.classList.add("opacity-100");
+        ui.docsContent.classList.remove("scale-95");
+        ui.docsContent.classList.add("scale-100");
     }
 
     function closeModal() {
-        const icon = ui.closeDocsBtn.querySelector('i');
-        icon?.classList.add('spin-out');
-        ui.docsModal.classList.remove('opacity-100');
-        ui.docsModal.classList.add('opacity-0', 'pointer-events-none');
-        ui.docsContent.classList.remove('scale-100');
-        ui.docsContent.classList.add('scale-95');
-        setTimeout(() => { icon?.classList.remove('spin-out'); }, 300);
+        const icon = ui.closeDocsBtn.querySelector("i");
+        icon?.classList.add("spin-out");
+        ui.docsModal.classList.remove("opacity-100");
+        ui.docsModal.classList.add("opacity-0", "pointer-events-none");
+        ui.docsContent.classList.remove("scale-100");
+        ui.docsContent.classList.add("scale-95");
+        setTimeout(() => {
+            icon?.classList.remove("spin-out");
+        }, 300);
     }
 
-    ui.docsBtn?.addEventListener('click', openModal);
-    ui.closeDocsBtn?.addEventListener('click', closeModal);
-    ui.docsModal?.addEventListener('click', (e) => {
+    ui.docsBtn?.addEventListener("click", openModal);
+    ui.closeDocsBtn?.addEventListener("click", closeModal);
+    ui.docsModal?.addEventListener("click", (e) => {
         if (e.target === ui.docsModal) closeModal();
     });
 
     // --- TRASH BUTTON STATE ENGINE ---
     function updateTrashButtonVisibility() {
         const hasContent = ui.token.value.length > 0;
-        
+
         if (hasContent) {
             ui.clearTokenBtn.disabled = false;
-            ui.clearTokenBtn.classList.remove('opacity-0', 'pointer-events-none');
-            ui.clearTokenBtn.classList.add('opacity-100', 'pointer-events-auto');
+            ui.clearTokenBtn.classList.remove(
+                "opacity-0",
+                "pointer-events-none",
+            );
+            ui.clearTokenBtn.classList.add(
+                "opacity-100",
+                "pointer-events-auto",
+            );
         } else {
             ui.clearTokenBtn.disabled = true;
-            ui.clearTokenBtn.classList.remove('opacity-100', 'pointer-events-auto');
-            ui.clearTokenBtn.classList.add('opacity-0', 'pointer-events-none');
+            ui.clearTokenBtn.classList.remove(
+                "opacity-100",
+                "pointer-events-auto",
+            );
+            ui.clearTokenBtn.classList.add("opacity-0", "pointer-events-none");
         }
     }
 
     // Listen to modifications in real-time
-    ui.token.addEventListener('input', updateTrashButtonVisibility);
-    ui.token.addEventListener('change', updateTrashButtonVisibility);
+    ui.token.addEventListener("input", updateTrashButtonVisibility);
+    ui.token.addEventListener("change", updateTrashButtonVisibility);
 
     // Intercept your token clear workflow to hide the icon immediately when pressed
-    ui.clearTokenBtn?.addEventListener('click', async () => {
+    ui.clearTokenBtn?.addEventListener("click", async () => {
         try {
-            await idbDelete('gh_token');
-            ui.token.value = '';
+            await idbDelete("gh_token");
+            ui.token.value = "";
             updateTrashButtonVisibility(); // <-- Reset state here
-            showToast('Cleared', 'Encrypted local credentials deleted from storage completely.', 'success');
+            showToast(
+                "Cleared",
+                "Encrypted local credentials deleted from storage completely.",
+                "success",
+            );
         } catch (e) {
-            showToast('Error', 'Context exception triggered.');
+            showToast("Error", "Context exception triggered.");
         }
     });
 
     // --- TOAST LOGIC ---
-    function showToast(title: string, msg: string, type: 'error' | 'success' = 'error') {
+    function showToast(
+        title: string,
+        msg: string,
+        type: "error" | "success" = "error",
+    ) {
         const { toastEl, toastTitle, toastMsg, toastIcon } = ui;
         if (!toastEl || !toastTitle || !toastMsg || !toastIcon) return;
-        
+
         toastTitle.innerText = sanitizeString(title);
         toastMsg.innerText = sanitizeString(msg);
-        toastIcon.innerHTML = type === 'error' ? '<i class="iconoir-warning-circle"></i>' : '<i class="iconoir-check-circle"></i>';
-        toastIcon.className = type === 'error' ? 'text-red-500' : 'text-green-500';
-        toastEl.classList.remove('-translate-y-20', 'opacity-0', 'pointer-events-none');
-        toastEl.classList.add('translate-y-0', 'opacity-100');
+        const errIcon = document.getElementById("toast-icon-error");
+        const succIcon = document.getElementById("toast-icon-success");
+        if (type === "error") {
+            errIcon?.classList.remove("hidden");
+            succIcon?.classList.add("hidden");
+            toastIcon.className = "text-red-500";
+        } else {
+            errIcon?.classList.add("hidden");
+            succIcon?.classList.remove("hidden");
+            toastIcon.className = "text-green-500";
+        }
+        toastEl.classList.remove(
+            "-translate-y-20",
+            "opacity-0",
+            "pointer-events-none",
+        );
+        toastEl.classList.add("translate-y-0", "opacity-100");
         setTimeout(() => hideToast(), 4000);
     }
 
     function hideToast() {
         const el = ui.toastEl;
         if (el) {
-            el.classList.add('-translate-y-20', 'opacity-0', 'pointer-events-none');
-            el.classList.remove('translate-y-0', 'opacity-100');
+            el.classList.add(
+                "-translate-y-20",
+                "opacity-0",
+                "pointer-events-none",
+            );
+            el.classList.remove("translate-y-0", "opacity-100");
         }
     }
-    
+
     async function init() {
         try {
-            const res = await fetch('/domains.json');
+            const res = await fetch("/domains.json");
             configList = await res.json();
-            
+
             const customOpt = `<option value="custom_unregistered">Custom (Unregistered)</option>`;
-            const presetOpts = configList.map(c => 
-                `<option value="${sanitizeString(c.prefix)}">${sanitizeString(c.name)}</option>`
-            ).join('');
-            
+            const presetOpts = configList
+                .map(
+                    (c) =>
+                        `<option value="${sanitizeString(c.prefix)}">${sanitizeString(c.name)}</option>`,
+                )
+                .join("");
+
             ui.prefixSelect.innerHTML = customOpt + presetOpts;
-            const def = configList.find(c => c.default);
-            ui.prefixSelect.value = def ? (def.prefix || "") : "custom_unregistered";
+            const def = configList.find((c) => c.default);
+            ui.prefixSelect.value = def
+                ? def.prefix || ""
+                : "custom_unregistered";
             handleSelectChange();
         } catch {
             showToast("Config Error", "Could not load domains.json");
         }
-        
+
         try {
-            const savedToken = await idbGet('gh_token');
+            const savedToken = await idbGet("gh_token");
             if (savedToken) {
                 const decrypted = decryptToken(savedToken);
-                ui.token.value = decrypted || '';
+                ui.token.value = decrypted || "";
             }
-        } catch (e) { /* Fallback */ }
+            updateTrashButtonVisibility();
+        } catch (e) {
+            /* Fallback */
+        }
     }
 
     function handleSelectChange() {
         const val = ui.prefixSelect.value;
-        if (val === 'custom_unregistered') {
-            ui.ghUser.readOnly = false; ui.ghUser.value = "";
-            ui.ghRepo.readOnly = false; ui.ghRepo.value = "";
+        if (val === "custom_unregistered") {
+            ui.ghUser.readOnly = false;
+            ui.ghUser.value = "";
+            ui.ghRepo.readOnly = false;
+            ui.ghRepo.value = "";
             ui.ghUser.placeholder = "username";
             ui.ghRepo.placeholder = "repo-name";
         } else {
-            const conf = configList.find(c => (c.prefix || "") === val);
+            const conf = configList.find((c) => (c.prefix || "") === val);
             if (conf) {
-                ui.ghUser.value = cleanGitHubIdentifier(conf.user); ui.ghUser.readOnly = true;
-                ui.ghRepo.value = cleanGitHubIdentifier(conf.repo); ui.ghRepo.readOnly = true;
+                ui.ghUser.value = cleanGitHubIdentifier(conf.user);
+                ui.ghUser.readOnly = true;
+                ui.ghRepo.value = cleanGitHubIdentifier(conf.repo);
+                ui.ghRepo.readOnly = true;
             }
         }
     }
 
-    ui.prefixSelect.addEventListener('change', handleSelectChange);
+    ui.prefixSelect.addEventListener("change", handleSelectChange);
 
-    ui.btn?.addEventListener('click', async () => {
+    ui.btn?.addEventListener("click", async () => {
         const rawTarget = ui.targetUrl.value;
         const rawToken = ui.token.value;
         const rawUser = ui.ghUser.value;
@@ -387,7 +583,10 @@ import Layout from '../layout/Layout.astro';
         // Apply severe algorithmic validation filters
         const finalTarget = validateAndNormalizeUrl(rawTarget);
         if (!finalTarget) {
-            return showToast("Invalid Target URL", "Please enter a valid HTTP/HTTPS URL framework.");
+            return showToast(
+                "Invalid Target URL",
+                "Please enter a valid HTTP/HTTPS URL framework.",
+            );
         }
 
         const user = cleanGitHubIdentifier(rawUser);
@@ -395,24 +594,38 @@ import Layout from '../layout/Layout.astro';
         const token = rawToken.trim();
 
         if (!user || !repo) {
-            return showToast("Validation Error", "Invalid formatting detected in repository configurations.");
+            return showToast(
+                "Validation Error",
+                "Invalid formatting detected in repository configurations.",
+            );
         }
-        
-        try { await idbSet('gh_token', encryptToken(token)); } catch (e) { /* Fail silently */ }
-        
+
+        try {
+            await idbSet("gh_token", encryptToken(token));
+        } catch (e) {
+            /* Fail silently */
+        }
+
+        const btnText = document.getElementById("shorten-btn-text");
+        const btnIcon = document.getElementById("shorten-btn-icon");
+        const btnLoader = document.getElementById("shorten-btn-loader");
         ui.btn.disabled = true;
-        const oldText = ui.btn.innerHTML;
-        ui.btn.innerHTML = `<i class="iconoir-system-restart animate-spin"></i> <span class="uppercase">Generating...</span>`;
+        if (btnText) btnText.textContent = "Generating...";
+        btnIcon?.classList.add("hidden");
+        btnLoader?.classList.remove("hidden");
 
         try {
             const ENCODING = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
             let t = Date.now();
             let id = "";
-            for(let i=0; i<10; i++) { id = ENCODING[t%32] + id; t = Math.floor(t/32); }
+            for (let i = 0; i < 10; i++) {
+                id = ENCODING[t % 32] + id;
+                t = Math.floor(t / 32);
+            }
 
             const now = new Date();
             const y = now.getUTCFullYear();
-            const m = String(now.getUTCMonth()+1).padStart(2, '0');
+            const m = String(now.getUTCMonth() + 1).padStart(2, "0");
             const path = `data/${y}/${m}/${id}.json`;
 
             // Structural elements are deeply escaped to block persistence injections
@@ -420,63 +633,119 @@ import Layout from '../layout/Layout.astro';
                 target: finalTarget,
                 repoUser: sanitizeString(user),
                 repoName: sanitizeString(repo),
-                created: new Date().toISOString()
+                created: new Date().toISOString(),
             };
 
-            const res = await fetch(`https://api.github.com/repos/${encodeURIComponent(user)}/${encodeURIComponent(repo)}/contents/${path}`, {
-                method: 'PUT',
-                headers: { 
-                    'Authorization': `Bearer ${token}`, 
-                    'Content-Type': 'application/json',
+            const res = await fetch(
+                `https://api.github.com/repos/${encodeURIComponent(user)}/${encodeURIComponent(repo)}/contents/${path}`,
+                {
+                    method: "PUT",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        message: `Link: ${id}`,
+                        content: btoa(JSON.stringify(content)),
+                    }),
                 },
-                body: JSON.stringify({
-                    message: `Link: ${id}`,
-                    content: btoa(JSON.stringify(content))
-                })
-            });
+            );
 
-            if(!res.ok) throw new Error("GitHub API Connection Refused - Check Access Scope Token/Repo matches.");
+            if (!res.ok)
+                throw new Error(
+                    "GitHub API Connection Refused - Check Access Scope Token/Repo matches.",
+                );
 
-            const SERVICE_DOMAIN = "https://s.rafifmsn.com"; 
+            const SERVICE_DOMAIN = window.location.origin;
             let finalShortLink = "";
 
-            const matchedConfig = configList.find(c => c.user === user && c.repo === repo);
+            const matchedConfig = configList.find(
+                (c) => c.user === user && c.repo === repo,
+            );
 
             if (matchedConfig) {
-                const prefixPath = matchedConfig.prefix ? `/${encodeURIComponent(matchedConfig.prefix)}/${id}` : `/${id}`;
+                const prefixPath = matchedConfig.prefix
+                    ? `/${encodeURIComponent(matchedConfig.prefix)}/${id}`
+                    : `/${id}`;
                 finalShortLink = SERVICE_DOMAIN + prefixPath;
             } else {
                 finalShortLink = `${SERVICE_DOMAIN}/${id}#u=${encodeURIComponent(user)}&r=${encodeURIComponent(repo)}`;
             }
 
-            ui.result.classList.remove('hidden');
+            ui.result.classList.remove("hidden");
             ui.resultInput.value = finalShortLink;
-            showToast("Success", "Secure database record established!", "success");
 
-        } catch(e: any) {
+            // Generate QR Code
+            if (ui.qrCanvas) {
+                // Initialize context with willReadFrequently to optimize readback performance (toDataURL)
+                ui.qrCanvas.getContext("2d", { willReadFrequently: true });
+
+                QRCode.toCanvas(
+                    ui.qrCanvas,
+                    finalShortLink,
+                    {
+                        width: 144,
+                        margin: 1,
+                        color: {
+                            dark: "#000000",
+                            light: "#FFFFFF",
+                        },
+                    },
+                    function (error) {
+                        if (error) console.error(error);
+                    },
+                );
+            }
+
+            showToast(
+                "Success",
+                "Secure database record established!",
+                "success",
+            );
+        } catch (e: any) {
             showToast("Security Exception", e.message);
         } finally {
             ui.btn.disabled = false;
-            ui.btn.innerHTML = oldText;
+            const btnText = document.getElementById("shorten-btn-text");
+            const btnIcon = document.getElementById("shorten-btn-icon");
+            const btnLoader = document.getElementById("shorten-btn-loader");
+            if (btnText) btnText.textContent = "Generate Link";
+            btnIcon?.classList.remove("hidden");
+            btnLoader?.classList.add("hidden");
         }
     });
 
-    ui.copyBtn?.addEventListener('click', () => {
+    ui.copyBtn?.addEventListener("click", () => {
         navigator.clipboard.writeText(ui.resultInput.value);
-        showToast("Copied", "Link copied to clipboard structure securely.", "success");
+        showToast(
+            "Copied",
+            "Link copied to clipboard structure securely.",
+            "success",
+        );
     });
 
-    ui.toastClose?.addEventListener('click', hideToast);
+    ui.downloadQrBtn?.addEventListener("click", () => {
+        if (!ui.qrCanvas || !ui.resultInput.value) return;
 
-    ui.clearTokenBtn?.addEventListener('click', async () => {
+        const shortLink = ui.resultInput.value;
+        let idPart = "link";
         try {
-            await idbDelete('gh_token');
-            ui.token.value = '';
-            showToast('Cleared', 'Encrypted local credentials deleted from storage completely.', 'success');
+            const urlObj = new URL(shortLink);
+            const pathParts = urlObj.pathname.split("/").filter(Boolean);
+            if (pathParts.length > 0) {
+                idPart = pathParts[pathParts.length - 1];
+            }
         } catch (e) {
-            showToast('Error', 'Context exception triggered while modifying local database context.');
+            console.error(e);
         }
+
+        const link = document.createElement("a");
+        link.download = `qrcode-${idPart}.png`;
+        link.href = ui.qrCanvas.toDataURL("image/png");
+        link.click();
     });
+
+    ui.toastClose?.addEventListener("click", hideToast);
 
     init();
 </script>

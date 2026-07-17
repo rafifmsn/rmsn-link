@@ -1,5 +1,11 @@
 # RMSN-Link
 
+![MIT License](https://img.shields.io/badge/license-MIT-blue)
+![Actions Status](https://img.shields.io/github/actions/workflow/status/rafifmsn/rmsn-link/ci.yml?branch=main)
+![GitHub Last Commit](https://img.shields.io/github/last-commit/rafifmsn/rmsn-link)
+
+![RMSN Link](./rmsn-link-thumb.jpg)
+
 A high-performance, serverless, and completely free link shortener built using Astro 6, Tailwind CSS v4, and GitHub repo as the database. This project is designed for users who want 100% control over their data with zero hosting costs.
 
 ## How It Works
@@ -51,6 +57,10 @@ While both the creation dashboard and the resolver engine apply sanitization rul
 
 \* _Note: CSP protection relies on deploying the site to a hosting provider that natively respects and processes the custom `_headers` file configuration (such as Cloudflare Pages)._
 
+> [!NOTE]
+> **Static Client-Side vs. Server-Side Architecture**
+> Because this is a serverless, static project, all logic (including token obfuscation and retrieval) executes inside the browser. While the IndexedDB storage is scoped securely via the browser's Same-Origin Policy, it is not a substitute for a true server-side backend database. For high-security enterprise environments, you should implement a traditional server-side (SSR) backend and utilize a centralized server-side database to avoid exposing or storing tokens client-side.
+
 **Security Tips:**
 
 - **Use Fine-Grained GitHub Tokens:** Do not use full-access developer accounts. Issue a **Fine-Grained Personal Access Token** limited exclusively to the specific repository acting as your link database, granting write/read permissions strictly to its file contents.
@@ -82,6 +92,35 @@ repository-root/
 
 ## Setup & Configuration
 
+### Environment Variables & Custom Branding
+
+You can customize the brand name (which displays in page headers, titles, and metadata) and the app URL using environment variables:
+
+- `PUBLIC_BRAND_NAME`: Customize the branding text (defaults to `"Rafif Muchsin"`).
+- `PUBLIC_APP_URL`: Configure the canonical app URL (defaults to `"https://s.rafifmsn.com"`).
+
+#### Configuring Locally
+Create a `.env` file in the root directory:
+```ini
+PUBLIC_BRAND_NAME="My Custom Brand"
+PUBLIC_APP_URL="https://links.mybrand.com"
+PORT=8080
+```
+
+#### Configuring in Docker Compose
+You can pass these variables as build arguments when building the image:
+```bash
+docker compose build --build-arg PUBLIC_BRAND_NAME="My Custom Brand" --build-arg PUBLIC_APP_URL="https://links.mybrand.com"
+```
+Or define them in your shell environment before running:
+```bash
+PUBLIC_BRAND_NAME="My Custom Brand" docker compose build
+```
+
+### Analytics
+
+The layout template in `src/layout/Layout.astro` contains a default analytics tracking script (Umami). If you are deploying your own version of this project, you should either remove this script or replace the `src` and `data-website-id` with your own analytics provider details.
+
 **1. Repository Setup**
 
 - Create a public GitHub repository to hold your link data.
@@ -106,11 +145,33 @@ repository-root/
 
 **2. Deployment**
 
-- Connect your repository to Cloudflare Pages.
+#### Static Hosting (Cloudflare Pages, Vercel, Netlify, etc.)
+
+- Connect your repository to your hosting provider.
 - Build Settings:
-- Framework: `Astro`
-- Build Command: `npm run build`
-- Output Directory: `dist`
+  - Framework: `Astro`
+  - Build Command: `npm run build`
+  - Output Directory: `dist`
+
+#### Docker Deployment
+
+You can self-host this static build or deploy it using Docker. A multi-stage `Dockerfile` and `docker-compose.yml` are provided.
+
+##### 1. Using Docker Compose
+Start the service with:
+```bash
+docker compose up -d
+```
+By default, the dashboard and resolver will be served on port `8080` (i.e. `http://localhost:8080`). To override the port, set the `PORT` environment variable:
+```bash
+PORT=9000 docker compose up -d
+```
+
+##### 2. Build and Run Manually
+```bash
+docker build -t rmsn-link .
+docker run -p 8080:80 rmsn-link
+```
 
 **3. Usage**
 
