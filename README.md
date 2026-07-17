@@ -121,6 +121,8 @@ PUBLIC_BRAND_NAME="My Custom Brand" docker compose build
 
 The layout template in `src/layout/Layout.astro` contains a default analytics tracking script (Umami). If you are deploying your own version of this project, you should either remove this script or replace the `src` and `data-website-id` with your own analytics provider details.
 
+Additionally, make sure to update the Content Security Policy (CSP) header in `public/_headers` to whitelist your analytics provider's domains in the `script-src` and `connect-src` directives if they are hosted externally.
+
 **1. Repository Setup**
 
 - Create a public GitHub repository to hold your link data.
